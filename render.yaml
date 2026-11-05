@@ -1,0 +1,65 @@
+# EZ Ads — deployment configuration for Render (single service + managed Atlas)
+# The API process serves both the REST/Socket.IO backend and the built SPA.
+databases:
+  - name: ezads-mongo
+    databaseName: ezads
+    plan: free
+
+services:
+  - type: web
+    name: ezads-api
+    runtime: node
+    plan: free
+    rootDir: server
+    # Render's Node runtime installs dependencies and runs the start command.
+    buildCommand: npm ci && cd ../client && npm ci && npm run build
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000 # Render injects PORT; this is the default edge port mapping
+      - key: MONGODB_URI
+        fromDatabase:
+          name: ezads-mongo
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: OAUTH_STATE_SECRET
+        generateValue: true
+      - key: TOKEN_ENC_KEY
+        generateValue: true
+      - key: CLIENT_ORIGIN
+        value: https://ezads-api.onrender.com # the web origin served by this app; replace after first deploy
+      # --- Meta OAuth (optional: empty values keep the clearly-labeled mock mode) ---
+      - key: META_APP_ID
+        sync: false
+      - key: META_APP_SECRET
+        sync: false
+      - key: META_REDIRECT_URI
+        value: https://ezads-api.onrender.com/api/auth/instagram/callback
+      # --- Admin provisioning: set these once, run `npm run seed:admin`, then REMOVE ---
+      - key: ADMIN_INITIAL_EMAIL
+        sync: false
+      - key: ADMIN_INITIAL_PASSWORD
+        sync: false
+      # --- Optional email delivery (verification / reset links) ---
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: '587'
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+  # --- one-off job: provision the first admin (run manually from the Render dashboard) ---
+  - type: pserv
+    name: ezads-provision-admin
+    runtime: node
+    plan: starter
+    rootDir: server
+    command: node src/scripts/seedAdmin.js --email "$ADMIN_INITIAL_EMAIL" --password "$ADMIN_INITIAL_PASSWORD" --reset
+    numInstances: 1

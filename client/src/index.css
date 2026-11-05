@@ -1,0 +1,315 @@
+/* EZ Ads — Marketplace-warm design system (Tailwind v4 @theme tokens)
+   Direction: commercial marketplace (Fiverr/Upwork) — warm paper canvas,
+   friendly blue primary, orange accent, layered neutral surfaces. */
+@import "tailwindcss";
+
+/* class-based dark mode: toggling .dark on <html> flips every token below */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Brand: friendly warm blue primary — a trustworthy marketplace blue */
+  --color-brand-50: #eef6ff;
+  --color-brand-100: #d9eaff;
+  --color-brand-200: #b8d7fe;
+  --color-brand-300: #8abcfd;
+  --color-brand-400: #5b9cf8;
+  --color-brand-500: #367ef0;
+  --color-brand-600: #1b6fe3;
+  --color-brand-700: #145cc2;
+  --color-brand-800: #154c9c;
+  --color-brand-900: #17427d;
+  /* Accent: warm orange for highlights, secondary CTAs, ratings */
+  --color-accent-50: #fff4ec;
+  --color-accent-100: #ffe6d5;
+  --color-accent-200: #fec9aa;
+  --color-accent-300: #fda67b;
+  --color-accent-400: #fb814c;
+  --color-accent-500: #f96a2b;
+  --color-accent-600: #ea4f15;
+  --color-accent-700: #c23a12;
+
+  /* Neutral re-map: app screens use raw neutral-tint classes and plain white,
+     so the whole palette is remapped to stone tones for the marketplace-warm
+     look. Plain white stays pure for surfaces that sit on top of cards. */
+  --color-neutral-50: #faf8f5;
+  --color-neutral-100: #f4f1ec;
+  --color-neutral-200: #e7e2da;
+  --color-neutral-300: #d6cfc5;
+  --color-neutral-400: #a49d94;
+  --color-neutral-500: #78736b;
+  --color-neutral-600: #6f6a63;
+  --color-neutral-700: #57534d;
+  --color-neutral-800: #35302b;
+  --color-neutral-900: #1c1917;
+  --color-neutral-950: #0f0d0b;
+
+  /* Semantic surfaces — the values below flip via :root/.dark, so components
+     stay dark-aware without a single `dark:` utility on them. */
+  --color-surface: var(--surface);
+  --color-canvas: var(--canvas);
+  --color-elevated: var(--elevated);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  /* Typography: Sora for display headings, Inter for UI/body, mono for numbers */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Sora", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 2px rgb(28 25 23 / 0.05), 0 2px 6px rgb(28 25 23 / 0.07);
+  --shadow-card-hover: 0 6px 16px rgb(28 25 23 / 0.1), 0 2px 4px rgb(28 25 23 / 0.06);
+
+  /* Decorative ramp for the landing backdrop (warm: blue→orange→coral→amber) */
+  --color-vz-top: #5b9cf8;
+  --color-vz-2: #fb814c;
+  --color-vz-3: #ff9f6e;
+  --color-vz-mint: #ffd166;
+  --color-vz-amber: #f9a825;
+  --color-vz-link: #1b6fe3;
+}
+
+:root {
+  /* warm stone family instead of cool slate — marketplace paper feel */
+  --surface: #ffffff;
+  --canvas: #faf8f5;
+  --elevated: #f4f1ec;
+  --ink: #1c1917;
+  --ink-soft: #6f6a63;
+  --line: #e7e2da;
+  --line-soft: #f1ede6;
+  color-scheme: light;
+}
+
+.dark {
+  /* warm charcoal family — orange accent reads naturally on it */
+  --surface: #211d1a;
+  --canvas: #161311;
+  --elevated: #2c2622;
+  --ink: #f2efec;
+  --ink-soft: #a8a29e;
+  --line: #3d3730;
+  --line-soft: #2c2622;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--canvas);
+  color: var(--ink);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ---------------- motion ---------------- */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(34px, -26px) scale(1.08); }
+  66% { transform: translate(-24px, 18px) scale(0.94); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-fade-up { animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-float { animation: float-y 6s ease-in-out infinite; }
+.animate-blob { animation: blob-drift 18s ease-in-out infinite; }
+.animate-pulse-soft { animation: pulse-soft 4s ease-in-out infinite; }
+.animate-ticker { animation: ticker 26s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-float, .animate-blob, .animate-pulse-soft, .animate-ticker {
+    animation: none;
+  }
+}  /* gradient display text used by hero H1s */
+.text-shine {
+  background-image: linear-gradient(100deg, var(--color-brand-500), var(--color-accent-500) 55%, var(--color-vz-mint));
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------- Antigravity-style homepage pieces (scoped, additive) ---------------- */
+
+/* Aurora mesh backdrop — layered radial gradients + slow mutants; the "mixture
+   of animation, gradients, and depth" without any WebGL. */
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.5;
+}
+.aurora::before {
+  background: radial-gradient(circle at 30% 30%, var(--color-vz-2), transparent 60%),
+    radial-gradient(circle at 70% 40%, var(--color-vz-top), transparent 55%);
+  top: -30vmax;
+  left: -20vmax;
+  animation: aurora-a 26s ease-in-out infinite alternate;
+}
+.aurora::after {
+  background: radial-gradient(circle at 45% 45%, var(--color-vz-3), transparent 58%),
+    radial-gradient(circle at 60% 60%, var(--color-vz-mint), transparent 62%);
+  right: -28vmax;
+  bottom: -32vmax;
+  opacity: 0.35;
+  animation: aurora-b 32s ease-in-out infinite alternate;
+}
+@keyframes aurora-a {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate3d(8vmax, 5vmax, 0) rotate(18deg) scale(1.15); }
+  100% { transform: translate3d(-4vmax, 10vmax, 0) rotate(-10deg) scale(0.95); }
+}
+@keyframes aurora-b {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate3d(-9vmax, -6vmax, 0) rotate(-14deg) scale(1.12); }
+  100% { transform: translate3d(6vmax, -12vmax, 0) rotate(8deg) scale(0.9); }
+}
+
+/* Fine grid that sits on top of the aurora */
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-vz-top) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-vz-top) 14%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 30%, transparent 75%);
+}
+
+/* Glass panel — the core surface language of the homepage */
+.glass {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid color-mix(in srgb, var(--color-vz-top) 18%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 8%, transparent) inset,
+    0 24px 60px rgb(2 6 23 / 0.16);
+}
+
+/* Electric glow ring shown on hover for icon tiles */
+.glow-ring {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-vz-top) 55%, transparent),
+    0 0 30px color-mix(in srgb, var(--color-vz-2) 55%, transparent);
+}
+
+/* Scroll-reveal: element is visible by default; when Reveal triggers
+   `is-hidden` first it plays the transition. Safe if JS never runs. */
+.reveal {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-hidden {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+/* Subtle sheen that sweeps across stat numbers once when revealed */
+@keyframes shine-sweep {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -100% 50%; }
+}
+.stat-num {
+  font-family: var(--font-display);
+  background: linear-gradient(100deg, var(--color-brand-600), var(--color-accent-500) 60%, var(--color-brand-600) 95%);
+  background-size: 200% auto;
+  background-clip: text;
+  color: transparent;
+}
+.stat-num:hover { animation: shine-sweep 1.6s linear infinite; }
+
+/* Tilt card — gentle 3D feel without any WebGL */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 0.12s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora::before, .aurora::after, .animate-float, .animate-blob, .animate-ticker, .animate-pulse-soft { animation: none; }
+  .reveal { transition: none; }
+  .tilt { transform: none; }
+}
+
+/* ---------------- dashboard pieces ---------------- */
+
+/* Animated gradient orb used as the 3D canvas' CSS stand-in: shown while the
+   three.js chunk lazy-loads, and as the permanent fallback when WebGL is
+   unavailable. Pure CSS, so the hero is never an empty box. */
+.orb-css {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.orb-css::before,
+.orb-css::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+}
+.orb-css::before {
+  width: 46%;
+  height: 46%;
+  background: radial-gradient(circle at 35% 35%, var(--color-brand-400), var(--color-brand-600) 60%, transparent 72%);
+  animation: orb-pulse 5.5s ease-in-out infinite;
+}
+.orb-css::after {
+  width: 70%;
+  height: 70%;
+  background: conic-gradient(from 0deg, transparent 0 55%, color-mix(in srgb, var(--color-accent-500) 55%, transparent) 75%, transparent 100%);
+  animation: orb-spin 9s linear infinite;
+  opacity: 0.75;
+}
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+@keyframes orb-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Stretched-link safety for dashboard tiles */
+.tile-link:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
+/* Pipeline bar segment fill */
+.pipe-seg {
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* thin scrollbar matching the vibe */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-vz-2) 45%, transparent); border-radius: 9999px; }
+::-webkit-scrollbar-track { background: transparent; }

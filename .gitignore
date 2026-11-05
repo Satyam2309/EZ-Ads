@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Environment files (never commit real secrets)
+.env
+.env.local
+env.local
+*.env
+!.env.example
+
+# Builds
+dist/
+build/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local debug scratch (curl cookie jars, API response dumps, perf runs)
+curl-cookies.txt
+*.cookies.txt
+b3.txt
+brand2.txt
+tmp.txt
+p.json
+sl.json
+tmp/
