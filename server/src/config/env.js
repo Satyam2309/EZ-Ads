@@ -12,6 +12,7 @@ const schema = z.object({
   CLIENT_ORIGIN: z.string().default('http://localhost:5173'),
   META_APP_ID: z.string().optional().default(''),
   META_APP_SECRET: z.string().optional().default(''),
+  META_CONFIG_ID: z.string().optional().default(''),
   META_REDIRECT_URI: z.string().default('http://localhost:5000/api/auth/instagram/callback'),
   META_SCOPES: z.string().default('instagram_business_basic'),
   OAUTH_MOCK_MODE: z.enum(['true', 'false']).default('true'),
@@ -34,7 +35,7 @@ if (!parsed.success) {
 export const env = parsed.data;
 export const isProd = env.NODE_ENV === 'production';
 export const isTest = env.NODE_ENV === 'test';
-export const oauthMockMode = env.OAUTH_MOCK_MODE === 'true' || !env.META_APP_ID || !env.META_APP_SECRET;
+export const oauthMockMode = env.OAUTH_MOCK_MODE === 'true' || !env.META_APP_ID || !env.META_APP_SECRET || !env.META_CONFIG_ID;
 
 /**
  * Production fail-fast: the schema's dev-only fallbacks keep local dev zero-

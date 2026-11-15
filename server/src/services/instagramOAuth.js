@@ -1,12 +1,12 @@
 /**
- * Instagram OAuth service — "Instagram API with Instagram Login"
- * (Business Login for Instagram). Verified against Meta docs, Oct 2026:
- *  - authorize: https://www.instagram.com/oauth/authorize
- *      client_id, redirect_uri, response_type=code, scope=instagram_business_basic
- *  - short-lived token: POST https://api.instagram.com/oauth/access_token
- *      (form: client_id, client_secret, grant_type=authorization_code, redirect_uri, code)
- *  - long-lived: GET https://graph.instagram.com/access_token
- *      (grant_type=ig_exchange_token, client_secret, access_token) — 60 days
+ * Instagram OAuth service — "Instagram API with Unified Login"
+ * (Facebook Login for Business with Instagram assets). Meta docs, Nov 2026:
+ *  - authorize: https://www.facebook.com/v23.0/dialog/oauth
+ *      client_id=META_APP_ID, redirect_uri, response_type=code, config_id=META_CONFIG_ID
+ *  - short-lived token: GET https://graph.facebook.com/v23.0/oauth/access_token
+ *      (client_id, client_secret, redirect_uri, code)
+ *  - long-lived: GET https://graph.facebook.com/v23.0/oauth/access_token
+ *      (grant_type=fb_exchange_token, client_id, client_secret, fb_exchange_token)
  *  - profile: GET https://graph.instagram.com/v23.0/me?fields=user_id,username,account_type
  * Tokens are encrypted at rest; secrets never leave the server; the frontend
  * only ever receives our own session cookie.
@@ -17,52 +17,60 @@ import { AppError } from '../utils/errors.js';
 import { encryptSecret, decryptSecret } from '../utils/tokenCrypto.js';
 import { signState, verifyState } from './oauthState.js';
 
-const AUTH_URL = 'https://www.instagram.com/oauth/authorize';
-const TOKEN_URL = 'https://api.instagram.com/oauth/access_token';
-const LL_TOKEN_URL = 'https://graph.instagram.com/access_token';
-const GRAPH_ME = 'https://graph.instagram.com/v23.0/me';
+// Unified Login endpoints (Facebook Login for Business)
+const AUTH_URL = 'https://www.facebook.com/v23.0/dialog/oauth';
+const TOKEN_URL = 'https://graph.facebook.com/v23.0/oauth/access_token';
+const GRAPH_ME  = 'https://graph.instagram.com/v23.0/me';
 
 export function buildAuthorizeUrl(state) {
   const params = new URLSearchParams({
-    client_id: env.META_APP_ID,
-    redirect_uri: env.META_REDIRECT_URI,
+    client_id:     env.META_APP_ID,
+    redirect_uri:  env.META_REDIRECT_URI,
     response_type: 'code',
-    scope: env.META_SCOPES
+    config_id:     env.META_CONFIG_ID,  // required for Unified Login
+    state                               // CSRF protection — Meta echoes this back to callback
   });
   return `${AUTH_URL}?${params}`;
 }
 
 /** Exchange authorization code → short-lived → long-lived token + profile. */
 export async function exchangeCodeForIdentity(code) {
-  const body = new URLSearchParams({
-    client_id: env.META_APP_ID,
+  // 1. Exchange code for short-lived token (Graph API GET)
+  const tokenParams = new URLSearchParams({
+    client_id:     env.META_APP_ID,
     client_secret: env.META_APP_SECRET,
-    grant_type: 'authorization_code',
-    redirect_uri: env.META_REDIRECT_URI,
+    redirect_uri:  env.META_REDIRECT_URI,
     code
   });
-  const res = await fetch(TOKEN_URL, { method: 'POST', body });
+  const res = await fetch(`${TOKEN_URL}?${tokenParams}`);
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
     throw new AppError(`Instagram token exchange failed (${res.status})`, 502, 'OAUTH_TOKEN_EXCHANGE_FAILED', { detail: undefined });
   }
-  const short = await res.json(); // { access_token, user_id, permissions }
+  const short = await res.json(); // { access_token, token_type }
 
-  // short → long-lived (60 days)
-  const ll = new URLSearchParams({ grant_type: 'ig_exchange_token', client_secret: env.META_APP_SECRET, access_token: short.access_token });
-  const llRes = await fetch(`${LL_TOKEN_URL}?${ll}`);
+  // 2. Exchange short-lived for long-lived token (60 days)
+  const llParams = new URLSearchParams({
+    grant_type:       'fb_exchange_token',
+    client_id:        env.META_APP_ID,
+    client_secret:    env.META_APP_SECRET,
+    fb_exchange_token: short.access_token
+  });
+  const llRes = await fetch(`${TOKEN_URL}?${llParams}`);
   const longLived = llRes.ok ? await llRes.json() : null;
 
-  // profile permitted by granted scopes
-  const meRes = await fetch(`${GRAPH_ME}?fields=user_id,username,account_type&access_token=${encodeURIComponent(short.access_token)}`);
+  const accessToken = longLived?.access_token || short.access_token;
+
+  // 3. Fetch Instagram profile via Instagram Graph API
+  const meRes = await fetch(`${GRAPH_ME}?fields=user_id,username,account_type&access_token=${encodeURIComponent(accessToken)}`);
   if (!meRes.ok) throw new AppError('Could not read Instagram profile', 502, 'OAUTH_PROFILE_FAILED');
   const profile = await meRes.json(); // { user_id, username, account_type }
 
   return {
-    providerId: String(profile.user_id ?? short.user_id),
-    username: profile.username,
-    accountType: profile.account_type,
-    accessToken: longLived?.access_token || short.access_token,
+    providerId:      String(profile.user_id),
+    username:        profile.username,
+    accountType:     profile.account_type,
+    accessToken,
     expiresInSeconds: longLived?.expires_in ?? 3600
   };
 }
