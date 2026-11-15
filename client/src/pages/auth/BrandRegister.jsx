@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import Card from '../../components/ui/Card.jsx';
+import AuthStory, { useAuthSwap } from '../../components/auth/AuthStory.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const INDUSTRIES = [
@@ -11,9 +11,15 @@ const INDUSTRIES = [
 ];
 const INDUSTRY_SLUGS = ['fashion', 'beauty', 'food_beverage', 'health_fitness', 'technology', 'gaming', 'education', 'finance', 'travel', 'entertainment', 'ecommerce', 'automotive', 'home_living', 'sports', 'other'];
 
+const POINTS = [
+  'Free to set up — no card required',
+  'Your dashboard, shortlists and campaigns in one place'
+];
+
 export default function BrandRegister() {
   const { registerBrand } = useAuth();
   const navigate = useNavigate();
+  const [leaving, swapTo] = useAuthSwap();
   const [form, setForm] = useState({ companyName: '', email: '', password: '', industry: '', website: '', phone: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -52,56 +58,98 @@ export default function BrandRegister() {
     }
   }
 
-  const input = 'mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100';
-  const label = 'block text-sm font-medium text-neutral-700';
+  const input = 'mt-1 block w-full rounded-lg border border-neutral-300 bg-(--color-surface) px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100';
+  const label = 'block text-sm font-medium text-(--color-ink)';
+  const optional = <span className="font-normal text-(--color-ink-soft)">(optional)</span>;
 
   return (
-    <div className="flex min-h-full items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-lg p-8">
-        <h1 className="text-xl font-bold">Create your brand account</h1>
-        <p className="mt-1 text-sm text-neutral-500">Find creators, run campaigns, pay securely on-platform.</p>
-        {error && (
-          <div role="alert" className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-200">{error}</div>
-        )}
-        <form className="mt-6 space-y-4" onSubmit={onSubmit}>
-          <div>
-            <label htmlFor="company" className={label}>Company / brand name</label>
-            <input id="company" value={form.companyName} onChange={set('companyName')} className={input} />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+    <div className={`auth-page grid min-h-[calc(100vh-4rem)] lg:grid-cols-[1.05fr_1fr] ${leaving ? 'is-leaving' : ''}`}>
+      {/* ---- story panel: same surface as login, so the hop between them feels continuous ---- */}
+      <section className="hidden overflow-hidden border-r border-(--color-line) lg:flex">
+        <AuthStory
+          points={POINTS}
+          footnote="Payments are simulated in this demo — clearly labelled, never real money."
+        />
+      </section>
+
+      {/* ---- form panel ---- */}
+      <section className="px-4 py-12 sm:px-8 lg:py-16">
+        <div className="mx-auto w-full max-w-lg">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-(--color-ink-soft)">
+            Get started
+          </p>
+          <h1 className="mt-3 font-(family:--font-display) text-2xl font-bold tracking-tight">
+            Create your brand account
+          </h1>
+          <p className="mt-1.5 text-sm text-(--color-ink-soft)">
+            Find creators, run campaigns, pay securely on-platform.
+          </p>
+
+          {error && (
+            <div role="alert" className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-200">
+              {error}
+            </div>
+          )}
+
+          <form className="mt-6 space-y-4" onSubmit={onSubmit}>
             <div>
-              <label htmlFor="email" className={label}>Business email</label>
-              <input id="email" type="email" autoComplete="email" value={form.email} onChange={set('email')} className={input} />
+              <label htmlFor="company" className={label}>Company / brand name</label>
+              <input id="company" value={form.companyName} onChange={set('companyName')} className={input} />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="email" className={label}>Business email</label>
+                <input id="email" type="email" autoComplete="email" value={form.email} onChange={set('email')} className={input} />
+              </div>
+              <div>
+                <label htmlFor="industry" className={label}>Industry</label>
+                <select id="industry" value={form.industry} onChange={set('industry')} className={input}>
+                  <option value="">Select…</option>
+                  {INDUSTRIES.map((i) => <option key={i}>{i}</option>)}
+                </select>
+              </div>
             </div>
             <div>
-              <label htmlFor="industry" className={label}>Industry</label>
-              <select id="industry" value={form.industry} onChange={set('industry')} className={input}>
-                <option value="">Select…</option>
-                {INDUSTRIES.map((i) => <option key={i}>{i}</option>)}
-              </select>
+              <label htmlFor="password" className={label}>Password</label>
+              <input id="password" type="password" autoComplete="new-password" value={form.password} onChange={set('password')} className={input} />
+              <p className="mt-1 text-xs text-(--color-ink-soft)">8+ characters, letters and numbers.</p>
             </div>
-          </div>
-          <div>
-            <label htmlFor="password" className={label}>Password</label>
-            <input id="password" type="password" autoComplete="new-password" value={form.password} onChange={set('password')} className={input} />
-            <p className="mt-1 text-xs text-neutral-500">8+ characters, letters and numbers.</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="website" className={label}>Website <span className="text-neutral-400">(optional)</span></label>
-              <input id="website" type="url" placeholder="https://" value={form.website} onChange={set('website')} className={input} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="website" className={label}>Website {optional}</label>
+                <input id="website" type="url" placeholder="https://" value={form.website} onChange={set('website')} className={input} />
+              </div>
+              <div>
+                <label htmlFor="phone" className={label}>Contact number {optional}</label>
+                <input id="phone" value={form.phone} onChange={set('phone')} className={input} />
+              </div>
             </div>
-            <div>
-              <label htmlFor="phone" className={label}>Contact number <span className="text-neutral-400">(optional)</span></label>
-              <input id="phone" value={form.phone} onChange={set('phone')} className={input} />
-            </div>
-          </div>
-          <Button type="submit" className="w-full" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</Button>
-        </form>
-        <p className="mt-4 text-center text-sm text-neutral-500">
-          Already registered? <Link to="/login/brand" className="font-medium text-brand-600 hover:text-brand-700">Log in</Link>
-        </p>
-      </Card>
+            <Button type="submit" size="lg" className="w-full" disabled={busy}>
+              {busy ? 'Creating account…' : 'Create account'}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-(--color-ink-soft)">
+            Already registered?{' '}
+            <Link
+              to="/login/brand"
+              onClick={(e) => {
+                e.preventDefault();
+                swapTo('/login/brand');
+              }}
+              className="font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-300"
+            >
+              Log in
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-xs text-(--color-ink-soft)">
+            Joining as a creator?{' '}
+            <Link to="/auth/instagram" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-300">
+              Continue with Instagram
+            </Link>
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

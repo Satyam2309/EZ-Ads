@@ -4,12 +4,6 @@ import api from '../../api/client.js';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
 
-/**
- * Step 2 of the brand password-reset flow. Token normally arrives via the
- * emailed link (?token=…); it can also be pasted manually (dev mailbox email
- * is copyable from the console). Rules match the server: ≥ 8 chars,
- * letters + numbers.
- */
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -21,13 +15,15 @@ export default function ResetPassword() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // keep the prefill in sync when a fresh ?token lands (e.g. a second link)
     const t = params.get('token');
     if (t) setToken(t);
   }, [params]);
 
+  // Show an error immediately if no token in URL
+  const missingToken = !token.trim();
+
   const clientRulesOk =
-    token.trim().length >= 10 &&
+    !missingToken &&
     password.length >= 8 &&
     /[A-Za-z]/.test(password) &&
     /[0-9]/.test(password) &&
@@ -36,7 +32,7 @@ export default function ResetPassword() {
   async function onSubmit(e) {
     e.preventDefault();
     setError('');
-    if (!token.trim()) return setError('The reset token is missing. Use the link from your email, or paste the full token.');
+    if (missingToken) return setError('Reset link is invalid or expired. Please request a new one.');
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
       return setError('New password must be at least 8 characters with letters and numbers.');
     }
@@ -57,8 +53,15 @@ export default function ResetPassword() {
       <Card className="w-full max-w-md p-8">
         <h1 className="text-xl font-bold">Set a new password</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Choose a new password for your brand account. Linked expires 60 minutes after the request.
+          Choose a new password for your brand account. The link expires 60 minutes after the request.
         </p>
+
+        {missingToken && !done && (
+          <div role="alert" className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-200">
+            This reset link is invalid or has expired.{' '}
+            <Link to="/forgot-password" className="font-medium underline">Request a new one →</Link>
+          </div>
+        )}
 
         {error && (
           <div role="alert" className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-200">
@@ -79,11 +82,6 @@ export default function ResetPassword() {
         ) : (
           <form className="mt-6 space-y-4" onSubmit={onSubmit}>
             <div>
-              <label htmlFor="token" className="block text-sm font-medium text-neutral-700">Reset token <span className="text-neutral-400">(pre-filled from the email link — paste to override)</span></label>
-              <input id="token" type="text" autoComplete="off" spellCheck="false" value={token} onChange={(e) => setToken(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
-            </div>
-            <div>
               <label htmlFor="password" className="block text-sm font-medium text-neutral-700">New password</label>
               <input id="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
@@ -94,7 +92,7 @@ export default function ResetPassword() {
               <input id="confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
             </div>
-            <Button type="submit" className="w-full" disabled={busy || !clientRulesOk}>
+            <Button type="submit" className="w-full" disabled={busy || !clientRulesOk || missingToken}>
               {busy ? 'Updating…' : 'Update password'}
             </Button>
           </form>

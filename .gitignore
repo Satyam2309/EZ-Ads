@@ -32,3 +32,10 @@ tmp.txt
 p.json
 sl.json
 tmp/
+preview/
+screenshot/
+screenshots/
+
+# Deploy bundle produced by `npm run pack:deploy`
+deploy.zip
+.deploy-stage/

@@ -126,16 +126,42 @@ body {
   to { transform: translateX(-50%); }
 }
 
+/* login welcome lines: rise + unblur, staggered by the component's timers */
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(18px); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* auth pages: soft enter, and a fade the page plays before swapping to its twin
+   (login <-> signup) so the shared story panel reads as one continuous surface */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.auth-page {
+  animation: page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition: opacity 0.24s ease, transform 0.24s ease, filter 0.24s ease;
+}
+.auth-page.is-leaving {
+  opacity: 0;
+  transform: translateY(-6px);
+  filter: blur(3px);
+  pointer-events: none;
+}
+
 .animate-fade-up { animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-word { animation: word-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .animate-float { animation: float-y 6s ease-in-out infinite; }
 .animate-blob { animation: blob-drift 18s ease-in-out infinite; }
 .animate-pulse-soft { animation: pulse-soft 4s ease-in-out infinite; }
 .animate-ticker { animation: ticker 26s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up, .animate-float, .animate-blob, .animate-pulse-soft, .animate-ticker {
+  .animate-fade-up, .animate-float, .animate-blob, .animate-pulse-soft, .animate-ticker, .animate-word {
     animation: none;
   }
+  .auth-page { animation: none; transition: none; }
 }  /* gradient display text used by hero H1s */
 .text-shine {
   background-image: linear-gradient(100deg, var(--color-brand-500), var(--color-accent-500) 55%, var(--color-vz-mint));

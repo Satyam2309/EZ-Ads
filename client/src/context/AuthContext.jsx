@@ -46,9 +46,10 @@ export function AuthProvider({ children }) {
 
   const connectInstagram = useCallback(async () => {
     const start = await api.get('/auth/instagram/start');
-    const { mode, state } = start.data;
+    const { mode, state, authorizeUrl } = start.data;
     if (mode === 'live') {
-      window.location.href = state; // real Meta authorization screen
+      if (!authorizeUrl) throw new Error('Server did not return an Instagram authorization URL');
+      window.location.assign(authorizeUrl); // real Meta authorization screen
       return { mode };
     }
     // Development-only mock flow — the user is told plainly this is NOT real Instagram.

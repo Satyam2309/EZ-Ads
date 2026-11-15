@@ -398,9 +398,6 @@ export default function Home() {
             </div>
           </div>
         </Reveal>
-        <p className="mt-8 text-center text-xs text-(--color-ink-soft)">
-          © {new Date().getFullYear()} EZ Ads · Demo workspace — payments are simulated until live checkout is enabled.
-        </p>
       </section>
     </div>
   );

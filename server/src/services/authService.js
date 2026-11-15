@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { User, BrandProfile, AuditLog } from '../models/index.js';
 import { AppError, badRequest, unauthorized, notFound } from '../utils/errors.js';
 import { sha256, randomToken } from '../utils/tokens.js';
-import { sendMail } from './emailService.js';
+import { sendMail, buildVerificationEmail, buildWelcomeEmail, buildPasswordResetEmail } from './emailService.js';
 import { env, isTest, isProd } from '../config/env.js';
 
 const BCRYPT_ROUNDS = 12;
@@ -48,11 +48,9 @@ export async function registerBrand(input, req) {
 async function sendVerificationEmail(email, name, token) {
   const verifyUrl = `${env.CLIENT_ORIGIN}/verify-email?token=${token}`;
   if (isEmailConfigured()) {
-    await sendMail({
-      to: email,
-      subject: 'Verify your EZ Ads account',
-      text: `Hi ${name},\n\nVerify your EZ Ads account: ${verifyUrl}\n\nLink expires in 24 hours.`
-    });
+    // Send branded HTML verification email
+    const { html, text } = buildVerificationEmail(name, verifyUrl);
+    await sendMail({ to: email, subject: 'Verify your EZ Ads account', text, html });
   } else {
     // Dev fallback: never silently pretend email was sent. Log the link; in
     // tests the token is also returned so flows can complete deterministically.
@@ -66,6 +64,12 @@ async function sendVerificationEmail(email, name, token) {
   }
 }
 
+async function sendWelcomeEmail(email, name) {
+  if (!isEmailConfigured()) return;
+  const { html, text } = buildWelcomeEmail(name);
+  await sendMail({ to: email, subject: `Welcome to EZ Ads, ${name}! 🎉`, text, html });
+}
+
 export function isEmailConfigured() {
   return Boolean(env.EMAIL_HOST && env.EMAIL_USER && env.EMAIL_PASS);
 }
@@ -77,6 +81,8 @@ export async function verifyEmail(token) {
   user.emailVerificationTokenHash = undefined;
   await user.save();
   await audit('auth.email_verified', user._id);
+  // Send branded welcome email after successful verification
+  await sendWelcomeEmail(user.email, user.displayName || 'there');
   return user;
 }
 
@@ -124,11 +130,9 @@ export async function requestPasswordReset(email) {
   );
   const resetUrl = `${env.CLIENT_ORIGIN}/reset-password?token=${token}`;
   if (isEmailConfigured()) {
-    await sendMail({
-      to: user.email,
-      subject: 'Reset your EZ Ads password',
-      text: `Reset your password: ${resetUrl}\n\nLink expires in 60 minutes. If you didn't request this, ignore this email.`
-    });
+    // Send branded HTML password reset email
+    const { html, text } = buildPasswordResetEmail(resetUrl);
+    await sendMail({ to: user.email, subject: 'Reset your EZ Ads password', text, html });
   } else {
     console.log(`[email] not configured — password reset link for ${user.email}: ${resetUrl}`);
     if (!isProd) {

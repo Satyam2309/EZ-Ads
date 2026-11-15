@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, NavLink, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import api from './api/client.js';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
@@ -12,6 +12,7 @@ import ForgotPassword from './pages/auth/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
 import VerifyEmail from './pages/auth/VerifyEmail.jsx';
 import InstagramConnect from './pages/auth/InstagramConnect.jsx';
+import InstagramCallback from './pages/auth/InstagramCallback.jsx';
 import BrandDashboard from './pages/BrandDashboard.jsx';
 import InfluencerDashboard from './pages/InfluencerDashboard.jsx';
 import Discovery from './pages/brand/Discovery.jsx';
@@ -25,7 +26,33 @@ import Chat from './pages/shared/Chat.jsx';
 import Notifications from './pages/shared/Notifications.jsx';
 import Payments from './pages/shared/Payments.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import InfoPage from './pages/shared/InfoPage.jsx';
+import Footer from './components/Footer.jsx';
+import LegalStrip from './components/LegalStrip.jsx';
 import Button from './components/ui/Button.jsx';
+import BrandLogo from './components/BrandLogo.jsx';
+
+/* The marketing footer only closes the public pages. Auth screens stay bare
+   and full-height; the signed-in app gets a slim legal row instead. */
+const FOOTER_ROUTES = new Set([
+  '/',
+  '/about',
+  '/contact',
+  '/return-policy',
+  '/refund-policy',
+  '/privacy-policy',
+  '/disclaimer'
+]);
+const APP_SECTIONS = ['/brand', '/influencer', '/chat', '/notifications', '/payments', '/admin'];
+
+function SiteFooter() {
+  const { pathname } = useLocation();
+  if (FOOTER_ROUTES.has(pathname)) return <Footer />;
+  // admin sign-in is an auth screen, not part of the app shell
+  if (pathname === '/admin/login') return null;
+  const inApp = APP_SECTIONS.some((base) => pathname === base || pathname.startsWith(`${base}/`));
+  return inApp ? <LegalStrip /> : null;
+}
 
 function Protected({ roles, children }) {
   const { user, loading } = useAuth();
@@ -57,9 +84,8 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-10 border-b border-(--color-line) bg-(--color-canvas)/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-brand-600 to-accent-600 font-bold text-white shadow-sm">EZ</span>
-          <span className="font-(family:--font-display) text-lg font-bold tracking-tight">EZ Ads</span>
+        <Link to="/" aria-label="EZ Ads — home" className="flex items-center transition-opacity hover:opacity-90">
+          <BrandLogo />
         </Link>
         <nav className="hidden gap-6 md:flex">
           <Link to="/" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Home</Link>
@@ -114,6 +140,7 @@ export default function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/auth/instagram" element={<InstagramConnect />} />
+            <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="/brand/dashboard" element={<Protected roles={['brand']}><BrandDashboard /></Protected>} />
             <Route path="/brand/discovery" element={<Protected roles={['brand']}><Discovery /></Protected>} />
             <Route path="/brand/creators/:id" element={<Protected roles={['brand']}><CreatorProfile /></Protected>} />
@@ -127,6 +154,12 @@ export default function App() {
             <Route path="/payments" element={<Protected><Payments /></Protected>} />
             <Route path="/influencer/dashboard" element={<Protected roles={['influencer']}><InfluencerDashboard /></Protected>} />
             <Route path="/admin" element={<Protected roles={['admin']}><AdminDashboard /></Protected>} />
+            <Route path="/about" element={<InfoPage page="about" />} />
+            <Route path="/contact" element={<InfoPage page="contact" />} />
+            <Route path="/return-policy" element={<InfoPage page="return-policy" />} />
+            <Route path="/refund-policy" element={<InfoPage page="refund-policy" />} />
+            <Route path="/privacy-policy" element={<InfoPage page="privacy-policy" />} />
+            <Route path="/disclaimer" element={<InfoPage page="disclaimer" />} />
               <Route
               path="*"
               element={
@@ -137,6 +170,7 @@ export default function App() {
               }
             />
           </Routes>
+          <SiteFooter />
           </CompareProvider>
         </AuthProvider>
       </BrowserRouter>

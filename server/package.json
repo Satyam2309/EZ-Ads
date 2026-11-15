@@ -9,6 +9,7 @@
     "start": "node src/server.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
     "gen:secrets": "node src/scripts/genSecrets.mjs",
+    "check:db": "node src/scripts/checkDb.mjs",
     "clean:demo": "node src/scripts/cleanupDemoData.mjs",
     "test": "node scripts/run-tests.mjs"
   },

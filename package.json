@@ -8,12 +8,15 @@
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "build": "npm ci --prefix client --include=dev && npm run build --prefix client && npm ci --prefix server --omit=dev",
+    "start": "npm start --prefix server",
+    "pack:deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/pack-deploy.ps1",
     "test": "npm test --prefix server && npm test --prefix client"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
   },
-  "main": "index.js",
+  "main": "server/src/server.js",
   "dependencies": {
     "ansi-regex": "^5.0.1",
     "ansi-styles": "^4.3.0",

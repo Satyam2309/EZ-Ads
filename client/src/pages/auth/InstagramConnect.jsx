@@ -1,18 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
-import Badge from '../../components/ui/Badge.jsx';
 import { api } from '../../api/client.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
-/**
- * Influencer entry point. THREE honest facts stated up front:
- *  1. Real flow requires an Instagram professional (Business/Creator) account — Meta rule, not ours.
- *  2. If Meta credentials/app review aren't configured, the button runs a MOCK flow
- *     that is clearly labeled at every step. It never pretends to be real verification.
- *  3. We never see or store an Instagram password; authorization happens on Meta.
- */
 export default function InstagramConnect() {
   const { connectInstagram } = useAuth();
   const navigate = useNavigate();
@@ -67,13 +59,6 @@ export default function InstagramConnect() {
         <Button className="mt-6 w-full" onClick={onConnect} disabled={busy}>
           {busy ? 'Connecting…' : 'Continue with Instagram'}
         </Button>
-
-        <div className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-xs text-amber-800 ring-1 ring-inset ring-amber-200">
-          <strong>Development notice:</strong> Meta app credentials aren't configured yet
-          (Meta app review + Advanced Access pending), so this button currently runs a
-          clearly-labeled <Badge tone="warning">MOCK</Badge> flow — simulated authentication for
-          development only. It does not verify any real Instagram account and no live data is fetched.
-        </div>
 
         <p className="mt-4 text-center text-sm text-neutral-500">
           Brand or agency? <Link to="/login/brand" className="font-medium text-brand-600 hover:text-brand-700">Log in here</Link>
