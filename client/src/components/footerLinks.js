@@ -6,8 +6,10 @@ export const COMPANY_LINKS = [
 ];
 
 export const LEGAL_LINKS = [
+  { to: '/terms', label: 'Terms of Service' },
+  { to: '/privacy-policy', label: 'Privacy Policy' },
+  { to: '/data-deletion', label: 'Data Deletion' },
   { to: '/return-policy', label: 'Return Policy' },
   { to: '/refund-policy', label: 'Refund Policy' },
-  { to: '/privacy-policy', label: 'Privacy Policy' },
   { to: '/disclaimer', label: 'Disclaimer' }
 ];

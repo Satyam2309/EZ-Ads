@@ -38,9 +38,13 @@ const FOOTER_ROUTES = new Set([
   '/',
   '/about',
   '/contact',
+  '/terms',
+  '/terms-of-service',
+  '/privacy',
+  '/privacy-policy',
+  '/data-deletion',
   '/return-policy',
   '/refund-policy',
-  '/privacy-policy',
   '/disclaimer'
 ]);
 const APP_SECTIONS = ['/brand', '/influencer', '/chat', '/notifications', '/payments', '/admin'];
@@ -156,9 +160,13 @@ export default function App() {
             <Route path="/admin" element={<Protected roles={['admin']}><AdminDashboard /></Protected>} />
             <Route path="/about" element={<InfoPage page="about" />} />
             <Route path="/contact" element={<InfoPage page="contact" />} />
+            <Route path="/terms" element={<InfoPage page="terms" />} />
+            <Route path="/terms-of-service" element={<InfoPage page="terms" />} />
+            <Route path="/privacy" element={<InfoPage page="privacy-policy" />} />
+            <Route path="/privacy-policy" element={<InfoPage page="privacy-policy" />} />
+            <Route path="/data-deletion" element={<InfoPage page="data-deletion" />} />
             <Route path="/return-policy" element={<InfoPage page="return-policy" />} />
             <Route path="/refund-policy" element={<InfoPage page="refund-policy" />} />
-            <Route path="/privacy-policy" element={<InfoPage page="privacy-policy" />} />
             <Route path="/disclaimer" element={<InfoPage page="disclaimer" />} />
               <Route
               path="*"

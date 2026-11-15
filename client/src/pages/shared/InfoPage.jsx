@@ -42,7 +42,7 @@ const PAGES = {
       {
         h: 'Product and support',
         body: [
-          'Email ops@example.com for account help, campaign disputes or anything that looks broken. This address is a placeholder in the demo build — swap it for a live support inbox before launch.',
+          'Email hello@ezads.co.in for account help, campaign disputes or anything that looks broken.',
           'Include the campaign or conversation link if you have one; it makes triage much faster.'
         ]
       },
@@ -159,6 +159,72 @@ const PAGES = {
         body: [
           'You can edit profile details from your dashboard at any time and ask for your account to be deleted, which removes your profile and campaign history.',
           'A self-serve export or delete tool is not exposed in this demo build — deletion is handled by the operator.'
+        ]
+      }
+    ]
+  },
+  terms: {
+    eyebrow: 'Legal',
+    title: 'Terms of Service',
+    lead: 'Please read these Terms of Service carefully before using the EZ Ads platform.',
+    sections: [
+      {
+        h: '1. Platform Overview',
+        body: [
+          'EZ Ads connects verified businesses ("Brands") with social media creators ("Influencers") to plan, execute, and track influencer marketing campaigns.',
+          'By registering for or using EZ Ads, you agree to comply with these terms, as well as the terms and community standards of third-party platforms you connect (such as Instagram and Meta).'
+        ]
+      },
+      {
+        h: '2. User Accounts & Verification',
+        body: [
+          'Brands register with verified corporate email accounts. Creators connect via official Meta/Instagram authentication to confirm ownership of their professional social profiles.',
+          'You are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account.'
+        ]
+      },
+      {
+        h: '3. Campaigns & Milestones',
+        body: [
+          'Campaign briefs define scope, deliverables, timeline, and agreed compensation.',
+          'Content delivered must be original, comply with advertising disclosure guidelines (e.g. #ad / #sponsored where legally required), and fulfill the agreed brief.'
+        ]
+      },
+      {
+        h: '4. Third-Party Services & Meta Platform',
+        body: [
+          'EZ Ads uses official Meta APIs to facilitate creator verification. By connecting your Instagram account, you acknowledge that authentication and authorization are subject to Meta Terms of Service and Privacy Policies.',
+          'You can revoke EZ Ads access at any time through your Instagram account settings.'
+        ]
+      },
+      {
+        h: '5. Limitation of Liability',
+        body: [
+          'EZ Ads is provided "as is". We are not responsible for campaign performance, third-party platform API outages, or content disputes between brands and creators beyond our dispute mediation guidelines.'
+        ]
+      }
+    ]
+  },
+  'data-deletion': {
+    eyebrow: 'Legal',
+    title: 'User Data Deletion Instructions',
+    lead: 'How to delete your account data and remove connected third-party platform permissions.',
+    sections: [
+      {
+        h: 'Removing Meta / Instagram Access',
+        body: [
+          'If you connected your Instagram account to EZ Ads and wish to revoke access:',
+          '1. Log into your Instagram account on your mobile app or web browser.',
+          '2. Navigate to Settings and Privacy > Website Permissions > Apps and Websites.',
+          '3. Locate "EZ Ads" under Active Apps and select "Remove".',
+          'Once removed, EZ Ads will no longer have access to your Instagram profile or data.'
+        ]
+      },
+      {
+        h: 'Requesting Complete Data Deletion',
+        body: [
+          'To permanently delete your EZ Ads account and all associated data from our servers:',
+          'Send an email to hello@ezads.co.in with the subject line "Data Deletion Request". Include the email address or Instagram handle associated with your account.',
+          'Our team will verify the request and permanently delete your profile, campaign records, and encrypted tokens within 7 business days, sending a confirmation email once completed.'
         ]
       }
     ]
