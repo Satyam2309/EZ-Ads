@@ -40,7 +40,11 @@ export async function registerBrand(input, req) {
     { _id: user._id },
     { emailVerificationTokenHash: sha256(verifyToken) }
   );
-  await sendVerificationEmail(email, input.companyName, verifyToken);
+  try {
+    await sendVerificationEmail(email, input.companyName, verifyToken);
+  } catch (err) {
+    console.error('[email] non-fatal verification send error:', err.message);
+  }
   await audit('auth.register.brand', user._id, { email }, req);
   return user;
 }

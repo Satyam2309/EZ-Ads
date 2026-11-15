@@ -5,11 +5,15 @@ let transporter = null;
 
 function getTransporter() {
   if (!transporter) {
+    const port = Number(env.EMAIL_PORT) || 587;
     transporter = nodemailer.createTransport({
       host: env.EMAIL_HOST,
-      port: env.EMAIL_PORT,
-      secure: env.EMAIL_PORT === 465,
-      auth: env.EMAIL_USER ? { user: env.EMAIL_USER, pass: env.EMAIL_PASS } : undefined
+      port,
+      secure: port === 465,
+      auth: env.EMAIL_USER ? { user: env.EMAIL_USER, pass: env.EMAIL_PASS } : undefined,
+      connectionTimeout: 6000,
+      greetingTimeout: 6000,
+      socketTimeout: 8000
     });
   }
   return transporter;
@@ -18,10 +22,11 @@ function getTransporter() {
 export async function sendMail({ to, subject, text, html }) {
   try {
     const info = await getTransporter().sendMail({ from: env.EMAIL_FROM, to, subject, text, html });
-    return info.messageId;
+    return info?.messageId;
   } catch (err) {
     console.error('[email] send failed:', err.message);
-    throw err;
+    // Never crash caller if SMTP is unreachable
+    return null;
   }
 }
 
