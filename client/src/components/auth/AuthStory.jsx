@@ -88,7 +88,7 @@ export default function AuthStory({ points = [], footnote }) {
       <div className="grid-overlay" aria-hidden />
 
       <div className="relative">
-        <BrandLogo size="lg" showTagline />
+        <BrandLogo size="lg" />
       </div>
 
       <div className="relative max-w-lg">

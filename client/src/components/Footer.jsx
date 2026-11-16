@@ -33,7 +33,7 @@ export default function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr]">
           <div className="max-w-xs">
             <Link to="/" aria-label="EZ Ads — home" className="inline-flex transition-opacity hover:opacity-90">
-              <BrandLogo size="lg" showTagline />
+              <BrandLogo size="lg" />
             </Link>
             <p className="mt-5 text-sm leading-relaxed text-(--color-ink-soft)">
               Brief, shortlist, negotiate and pay qualified creators in one place — with every number
