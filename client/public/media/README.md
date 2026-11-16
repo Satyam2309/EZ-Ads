@@ -8,12 +8,14 @@ section — no code change required.
 
 | File | Specs |
 | --- | --- |
-| `ezads-ad.mp4` | 10.03 s, 1280×720 (16:9), H.264 / MP4, 4.83 MB, no poster |
+| `ezads-ad.mp4` | 10.0 s, 1280×720 (16:9), H.264 / MP4, 2.32 MB, `+faststart`, no audio |
+| `ezads-ad-poster.jpg` | Frame at 5 s (54 KB), shown until playback starts |
 
 ## Behaviour
 
 - Autoplays muted and loops, but only while the section is on screen; pauses when
   scrolled away
+- The poster frame covers the moment before the first frame decodes
 - `prefers-reduced-motion`: no autoplay, native controls shown instead
 - The five workflow steps are rendered as text below the clip, so the section
   still reads correctly with the video stopped or blocked
