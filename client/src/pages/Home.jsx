@@ -5,7 +5,6 @@ import Badge from '../components/ui/Badge.jsx';
 import Card from '../components/ui/Card.jsx';
 import Icon from '../components/ui/Icon.jsx';
 import WorkflowAdSection from '../components/WorkflowAdSection.jsx';
-import HeroAdVideo from '../components/HeroAdVideo.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 /* Per-role hero CTA. Guests see the signup flow; a logged-in brand gets
@@ -268,9 +267,6 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
-
-      {/* ============ PHOTOREAL HERO AD (video slot) ============ */}
-      <HeroAdVideo />
 
       {/* ============ STATS — count-up band ============ */}
       <section ref={statsRef} className="relative">

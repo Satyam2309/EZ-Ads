@@ -1,47 +1,38 @@
-# Landing-page advert assets
+# Landing-page demo clip
 
-Drop the produced advert clip here and it plays automatically on the landing
-page (`client/src/components/HeroAdVideo.jsx`). No code change is required.
+`ezads-ad.mp4` plays in the "How EZ Ads works" section
+(`client/src/components/WorkflowAdSection.jsx`). Replacing the file updates the
+section — no code change required.
 
-## Required files
+## Current file
 
-| File | Purpose | Notes |
-| --- | --- | --- |
-| `ezads-ad.mp4` | Main clip (required) | H.264 / AVC, `+faststart` so it starts before fully downloaded |
-| `ezads-ad.webm` | Optional smaller alternative | VP9 — served first to browsers that support it |
-| `ezads-ad-poster.jpg` | Poster frame | Shown before play, and permanently for reduced-motion users |
+| File | Specs |
+| --- | --- |
+| `ezads-ad.mp4` | 10.03 s, 1280×720 (16:9), H.264 / MP4, 4.83 MB, no poster |
 
-## Recommended specs
+## Behaviour
 
-- **Duration:** 8–15 seconds, and ideally loop seamlessly (first frame ≈ last frame)
-- **Resolution:** 1920×1080 (16:9). Provide a 1080×1920 (9:16) variant later if you want a mobile-specific cut
-- **Frame rate:** 24–30 fps
-- **File size:** aim under 3 MB (~2 Mbps). This is a landing page — most visitors are on mobile data
-- **Audio:** none needed. Playback is muted (browsers only allow muted autoplay), so record/export without a soundtrack
-- **Content direction:** real-looking people scrolling/using the app on a phone, natural light, no on-screen text (the page already carries the copy)
+- Autoplays muted and loops, but only while the section is on screen; pauses when
+  scrolled away
+- `prefers-reduced-motion`: no autoplay, native controls shown instead
+- The five workflow steps are rendered as text below the clip, so the section
+  still reads correctly with the video stopped or blocked
 
-## Compressing
+## Swapping the clip
+
+Keep it 16:9 and H.264 so Safari and mobile can play it, and aim for a smaller
+file — this is a landing page and most visitors are on mobile data. `+faststart`
+lets playback begin before the download finishes:
 
 ```bash
-# MP4 with faststart (start playing before the whole file downloads)
-ffmpeg -i source.mp4 -vf scale=1920:-2 -c:v libx264 -profile:v high -crf 24 \
+ffmpeg -i source.mp4 -vf scale=1280:-2 -c:v libx264 -profile:v high -crf 26 \
   -preset slow -movflags +faststart -an ezads-ad.mp4
-
-# WebM alternative
-ffmpeg -i source.mp4 -vf scale=1920:-2 -c:v libvpx-vp9 -crf 34 -b:v 0 -an ezads-ad.webm
-
-# Poster frame at ~1s
-ffmpeg -i source.mp4 -ss 1 -frames:v 1 -q:v 3 ezads-ad-poster.jpg
 ```
 
-## How it behaves
-
-- Loads and plays only when the section scrolls into view; pauses when scrolled away
-- `preload="none"` until then, so it never competes with the page for bandwidth
-- `prefers-reduced-motion`: shows the poster only, with a visible note — no autoplay
-- If the files are missing, an owner-facing placeholder explains what to supply instead of rendering a broken player
+No audio track is needed: playback is muted, because browsers only autoplay
+muted video.
 
 ## Licensing
 
-Use footage you own or have licensed for commercial use, and keep the proof.
-If the clip is AI-generated, check that the provider grants commercial rights.
+Use footage you own or have licensed for commercial use, and keep the proof. If
+the clip is AI-generated, check that the provider grants commercial rights.
