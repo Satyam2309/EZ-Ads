@@ -35,7 +35,7 @@ export function buildAuthorizeUrl(state) {
 
 /** Exchange authorization code → short-lived → long-lived token + profile. */
 export async function exchangeCodeForIdentity(code) {
-  // 1. Exchange code for short-lived token (Graph API GET)
+  // 1. Exchange code for access token (Graph API GET)
   const tokenParams = new URLSearchParams({
     client_id:     env.META_APP_ID,
     client_secret: env.META_APP_SECRET,
@@ -45,33 +45,131 @@ export async function exchangeCodeForIdentity(code) {
   const res = await fetch(`${TOKEN_URL}?${tokenParams}`);
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
-    throw new AppError(`Instagram token exchange failed (${res.status})`, 502, 'OAUTH_TOKEN_EXCHANGE_FAILED', { detail: undefined });
+    console.error('[oauth] token exchange error:', res.status, detail);
+    throw new AppError(`Instagram token exchange failed (${res.status}): ${detail}`, 502, 'OAUTH_TOKEN_EXCHANGE_FAILED');
   }
-  const short = await res.json(); // { access_token, token_type }
+  const short = await res.json(); // { access_token, token_type, expires_in }
 
-  // 2. Exchange short-lived for long-lived token (60 days)
-  const llParams = new URLSearchParams({
-    grant_type:       'fb_exchange_token',
-    client_id:        env.META_APP_ID,
-    client_secret:    env.META_APP_SECRET,
-    fb_exchange_token: short.access_token
-  });
-  const llRes = await fetch(`${TOKEN_URL}?${llParams}`);
-  const longLived = llRes.ok ? await llRes.json() : null;
+  let accessToken = short.access_token;
+  let expiresIn = short.expires_in || 3600;
 
-  const accessToken = longLived?.access_token || short.access_token;
+  // 2. Try exchanging for long-lived token if applicable
+  try {
+    const llParams = new URLSearchParams({
+      grant_type:       'fb_exchange_token',
+      client_id:        env.META_APP_ID,
+      client_secret:    env.META_APP_SECRET,
+      fb_exchange_token: short.access_token
+    });
+    const llRes = await fetch(`${TOKEN_URL}?${llParams}`);
+    if (llRes.ok) {
+      const longLived = await llRes.json();
+      if (longLived?.access_token) {
+        accessToken = longLived.access_token;
+        expiresIn = longLived.expires_in ?? 5184000; // 60 days
+      }
+    }
+  } catch (err) {
+    console.warn('[oauth] long-lived token exchange skipped:', err.message);
+  }
 
-  // 3. Fetch Instagram profile via Instagram Graph API
-  const meRes = await fetch(`${GRAPH_ME}?fields=user_id,username,account_type&access_token=${encodeURIComponent(accessToken)}`);
-  if (!meRes.ok) throw new AppError('Could not read Instagram profile', 502, 'OAUTH_PROFILE_FAILED');
-  const profile = await meRes.json(); // { user_id, username, account_type }
+  // 3. Resiliently fetch Instagram profile across all Meta Graph API variants
+  let providerId = null;
+  let username = null;
+  let accountType = 'CREATOR';
+
+  // Strategy A: Unified Login / Facebook Login for Business -> /me/assigned_instagram_accounts
+  try {
+    const assignedRes = await fetch(
+      `https://graph.facebook.com/v23.0/me/assigned_instagram_accounts?fields=id,username,name&access_token=${encodeURIComponent(accessToken)}`
+    );
+    if (assignedRes.ok) {
+      const assignedData = await assignedRes.json();
+      console.log('[oauth] assigned_instagram_accounts:', JSON.stringify(assignedData));
+      if (assignedData?.data && assignedData.data.length > 0) {
+        const ig = assignedData.data[0];
+        providerId = String(ig.id);
+        username = ig.username || ig.name;
+      }
+    }
+  } catch (err) {
+    console.warn('[oauth] assigned_instagram_accounts error:', err.message);
+  }
+
+  // Strategy B: /me/accounts -> Page -> instagram_business_account
+  if (!providerId) {
+    try {
+      const accountsRes = await fetch(
+        `https://graph.facebook.com/v23.0/me/accounts?fields=id,name,instagram_business_account{id,username,name}&access_token=${encodeURIComponent(accessToken)}`
+      );
+      if (accountsRes.ok) {
+        const accountsData = await accountsRes.json();
+        console.log('[oauth] me/accounts:', JSON.stringify(accountsData));
+        const pageWithIg = accountsData?.data?.find((p) => p.instagram_business_account?.id);
+        if (pageWithIg) {
+          providerId = String(pageWithIg.instagram_business_account.id);
+          username = pageWithIg.instagram_business_account.username || pageWithIg.instagram_business_account.name;
+          accountType = 'BUSINESS';
+        }
+      }
+    } catch (err) {
+      console.warn('[oauth] me/accounts error:', err.message);
+    }
+  }
+
+  // Strategy C: Direct Instagram Graph API /me (if token is an Instagram User Access Token)
+  if (!providerId) {
+    try {
+      const igMeRes = await fetch(
+        `https://graph.instagram.com/v23.0/me?fields=user_id,username,account_type&access_token=${encodeURIComponent(accessToken)}`
+      );
+      if (igMeRes.ok) {
+        const igMeData = await igMeRes.json();
+        console.log('[oauth] graph.instagram.com/me:', JSON.stringify(igMeData));
+        if (igMeData?.user_id || igMeData?.id) {
+          providerId = String(igMeData.user_id || igMeData.id);
+          username = igMeData.username;
+          accountType = igMeData.account_type || 'CREATOR';
+        }
+      }
+    } catch (err) {
+      console.warn('[oauth] graph.instagram.com/me error:', err.message);
+    }
+  }
+
+  // Strategy D: Facebook Graph API /me (fallback for user identity)
+  if (!providerId) {
+    try {
+      const fbMeRes = await fetch(
+        `https://graph.facebook.com/v23.0/me?fields=id,name,short_name&access_token=${encodeURIComponent(accessToken)}`
+      );
+      if (fbMeRes.ok) {
+        const fbMeData = await fbMeRes.json();
+        console.log('[oauth] graph.facebook.com/me:', JSON.stringify(fbMeData));
+        if (fbMeData?.id) {
+          providerId = String(fbMeData.id);
+          username = fbMeData.short_name || fbMeData.name?.replace(/\s+/g, '_').toLowerCase();
+        }
+      }
+    } catch (err) {
+      console.warn('[oauth] graph.facebook.com/me error:', err.message);
+    }
+  }
+
+  if (!providerId) {
+    throw new AppError(
+      'No Instagram account found. Make sure your Instagram is a Professional or Creator account linked in Meta Business.',
+      400,
+      'OAUTH_NO_IG_ACCOUNT'
+    );
+  }
 
   return {
-    providerId:      String(profile.user_id),
-    username:        profile.username,
-    accountType:     profile.account_type,
+    providerId,
+    username: username || `creator_${providerId.slice(-6)}`,
+    accountType,
     accessToken,
-    expiresInSeconds: longLived?.expires_in ?? 3600
+    expiresInSeconds: expiresIn
   };
 }
 

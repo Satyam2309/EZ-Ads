@@ -16,6 +16,7 @@ export default function InstagramCallback() {
   const [params] = useSearchParams();
   const status = params.get('status');
   const message = params.get('message');
+  const detail = params.get('detail');
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const ok = status === 'success';
@@ -53,10 +54,15 @@ export default function InstagramCallback() {
 
         {!ok && (
           <>
-            <h1 className="text-xl font-bold">Instagram sign-in cancelled</h1>
+            <h1 className="text-xl font-bold">Instagram sign-in failed</h1>
             <p className="mt-3 text-sm text-neutral-600">
               {message || 'Authorization was denied or timed out before it completed.'}
             </p>
+            {detail && (
+              <p className="mt-3 rounded bg-red-50 p-2 text-xs font-mono text-red-600 dark:bg-red-950/40 dark:text-red-400">
+                {detail}
+              </p>
+            )}
             <Button className="mt-6 w-full" to="/auth/instagram">Try again</Button>
           </>
         )}

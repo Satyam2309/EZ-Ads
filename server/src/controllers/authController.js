@@ -151,9 +151,10 @@ export async function instagramCallbackHandler(req, res) {
     setSessionCookie(res, user);
     return res.redirect(`${env.CLIENT_ORIGIN}/auth/instagram/callback?status=success`);
   } catch (err) {
-    if (err instanceof AppError && err.status < 500) return fail(err.message);
-    console.error('[oauth] callback error:', err.message);
-    return fail('Instagram connection failed — try again');
+    console.error('[oauth] callback error:', err);
+    const msg = err.message || 'Instagram connection failed — try again';
+    const detail = err.details?.detail || (err.status ? `Status: ${err.status}` : undefined);
+    return fail(msg, detail);
   }
 }
 
