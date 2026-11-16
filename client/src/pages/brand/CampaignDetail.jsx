@@ -282,7 +282,7 @@ export default function CampaignDetail() {
                         </label>
                         <div className="sm:col-span-2 flex items-center gap-2">
                           <Button size="sm" type="submit">Create agreement draft</Button>
-                          <span className="text-xs text-neutral-500">Platform commission is applied automatically (10%) and shown to both parties.</span>
+                          <span className="text-xs text-neutral-500">Platform commission is applied automatically and shown to both parties.</span>
                         </div>
                       </form>
                     </div>

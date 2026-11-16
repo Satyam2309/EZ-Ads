@@ -172,7 +172,7 @@ const steps = [
 const trust = [
   { icon: 'shield', label: 'API-derived data only', body: 'Instagram metrics come from the official Meta authorization flow — self-reported numbers are always labeled as such.' },
   { icon: 'wallet', label: 'Escrow-style ledger', body: 'Brand funds are committed when an agreement is signed, released only against approved deliverables.' },
-  { icon: 'sparkles', label: '10% flat, all-in', body: 'One transparent platform fee on every agreement. No subscription tiers, no surprise deductions.' }
+  { icon: 'check', label: 'Every step on record', body: 'Applications, agreements, deliverables and payouts stay attached to the campaign, visible to both sides.' }
 ];
 
 const tickerItems = [
@@ -238,7 +238,7 @@ export default function Home() {
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                   <span className="ml-3 rounded-md bg-(--color-elevated) px-3 py-1 font-(family:--font-mono) text-xs text-(--color-ink-soft)">
-                    ezads.app/brand/discovery
+                    ezads.co.in/brand/discovery
                   </span>
                 </div>
                 <Card className="border-transparent p-5 shadow-none">
@@ -274,7 +274,7 @@ export default function Home() {
           <div className="grid grid-cols-2 divide-x divide-(--color-line-soft) md:grid-cols-4">
             <StatNumber started={statsInView} value="48.2K" label="avg. creator followers" />
             <StatNumber started={statsInView} value="4.6%" label="median engagement" />
-            <StatNumber started={statsInView} value="10%" label="flat platform fee" />
+            <StatNumber started={statsInView} value="5" label="steps from brief to payout" />
             <StatNumber started={statsInView} value="100%" label="honest data labels" />
           </div>
         </div>
