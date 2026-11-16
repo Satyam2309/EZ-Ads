@@ -71,11 +71,16 @@ export default function WorkflowAdSection() {
 
   return (
     <section id="how-it-works" ref={holder} className="mx-auto max-w-7xl scroll-mt-20 px-4 py-14 sm:px-6 lg:px-8">
-      {/* Heading kept for screen readers and the document outline only — the
-          clip and the step row speak for themselves visually. */}
-      <h2 className="sr-only">How EZ Ads works</h2>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h2 className="font-(family:--font-display) text-3xl font-bold tracking-tight sm:text-4xl">
+          Real creators. Real campaigns. <span className="text-shine">No guesswork.</span>
+        </h2>
+        <p className="max-w-sm text-sm text-(--color-ink-soft)">
+          Creators who fit the brief, and five steps that carry a campaign from shortlist to payout.
+        </p>
+      </div>
 
-      <div className="glass overflow-hidden rounded-3xl">
+      <div className="glass mt-8 overflow-hidden rounded-3xl">
         <div className="relative aspect-video w-full bg-(--color-elevated)">
           <video
             ref={video}
