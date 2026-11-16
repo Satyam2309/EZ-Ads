@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Button from './ui/Button.jsx';
 import Icon from './ui/Icon.jsx';
-import { AD_STEPS } from './three/adTimeline.js';
+import { AD_STEPS } from './workflowSteps.js';
 
 /* The real walkthrough clip. Replacing this file updates the section — no code
    change needed. It is 10s, 1280x720, H.264 at 2.3 MB, so it can autoplay muted
