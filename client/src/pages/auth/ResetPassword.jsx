@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/client.js';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
+import PasswordInput from '../../components/ui/PasswordInput.jsx';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -83,14 +84,14 @@ export default function ResetPassword() {
           <form className="mt-6 space-y-4" onSubmit={onSubmit}>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-neutral-700">New password</label>
-              <input id="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+              <PasswordInput id="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
+                inputClassName="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
               <p className="mt-1 text-xs text-neutral-400">At least 8 characters, including letters and numbers.</p>
             </div>
             <div>
               <label htmlFor="confirm" className="block text-sm font-medium text-neutral-700">Confirm new password</label>
-              <input id="confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+              <PasswordInput id="confirm" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
+                inputClassName="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
             </div>
             <Button type="submit" className="w-full" disabled={busy || !clientRulesOk || missingToken}>
               {busy ? 'Updating…' : 'Update password'}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
+import PasswordInput from '../../components/ui/PasswordInput.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function AdminLogin() {
@@ -53,8 +54,8 @@ export default function AdminLogin() {
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-neutral-700">Password</label>
-              <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+              <PasswordInput id="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
+                inputClassName="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" />
             </div>
             <Button type="submit" className="w-full" disabled={busy}>{busy ? 'Signing in…' : 'Log in'}</Button>
           </form>

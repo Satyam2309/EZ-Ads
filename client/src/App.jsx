@@ -25,6 +25,7 @@ import Inbox from './pages/creator/Inbox.jsx';
 import Chat from './pages/shared/Chat.jsx';
 import Notifications from './pages/shared/Notifications.jsx';
 import Payments from './pages/shared/Payments.jsx';
+import Settings from './pages/shared/Settings.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import InfoPage from './pages/shared/InfoPage.jsx';
 import Footer from './components/Footer.jsx';
@@ -47,7 +48,14 @@ const FOOTER_ROUTES = new Set([
   '/refund-policy',
   '/disclaimer'
 ]);
-const APP_SECTIONS = ['/brand', '/influencer', '/chat', '/notifications', '/payments', '/admin'];
+const APP_SECTIONS = ['/brand', '/influencer', '/chat', '/notifications', '/payments', '/settings', '/admin'];
+
+/* One shared look for the header links, with a brand-coloured label and a
+   2px underline on whichever page the user is currently on. */
+const NAV_BASE = 'relative text-sm transition-colors';
+const NAV_ACTIVE = 'font-semibold text-brand-600 dark:text-brand-300 after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-brand-600 dark:after:bg-brand-300';
+const NAV_IDLE = 'font-medium text-(--color-ink-soft) hover:text-(--color-ink)';
+const navLinkClass = (active) => `${NAV_BASE} ${active ? NAV_ACTIVE : NAV_IDLE}`;
 
 function SiteFooter() {
   const { pathname } = useLocation();
@@ -91,19 +99,20 @@ function Navbar() {
         <Link to="/" aria-label="EZ Ads — home" className="flex items-center transition-opacity hover:opacity-90">
           <BrandLogo />
         </Link>
-        <nav className="hidden gap-6 md:flex">
-          <Link to="/" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Home</Link>
-          {user?.role === 'brand' && <Link to="/brand/discovery" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Find creators</Link>}
-          {user?.role === 'brand' && <Link to="/brand/shortlists" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Shortlists</Link>}
-          {user?.role === 'brand' && <Link to="/brand/campaigns" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Campaigns</Link>}
-          {user?.role === 'brand' && <Link to="/brand/dashboard" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Dashboard</Link>}
-          {user?.role === 'influencer' && <Link to="/influencer/explore" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Explore campaigns</Link>}
-          {user?.role === 'influencer' && <Link to="/influencer/inbox" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Inbox</Link>}
-          {user?.role === 'influencer' && <Link to="/payments" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Payments</Link>}
-          {user && <Link to="/chat" className={unreadChat > 0 ? "text-sm font-semibold text-brand-600 dark:text-brand-300" : "text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)"}>Chat{unreadChat > 0 ? ` (${unreadChat})` : ''}</Link>}
-          {user && <NavLink to="/notifications" className={({ isActive }) => `rounded-full px-2 py-1 text-sm ${isActive || unreadNotifs > 0 ? 'text-brand-600 dark:text-brand-300 font-semibold' : 'text-(--color-ink-soft) hover:text-(--color-ink) font-medium'}`}>🔔{unreadNotifs > 0 ? ` ${unreadNotifs}` : ''}</NavLink>}
-          {user?.role === 'influencer' && <Link to="/influencer/dashboard" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">Dashboard</Link>}
-          {user?.role === 'admin' && <Link to="/admin" className="text-sm font-medium text-(--color-ink-soft) hover:text-(--color-ink)">⚙ Admin</Link>}
+        <nav className="hidden gap-4 md:flex lg:gap-6">
+          <NavLink to="/" end className={({ isActive }) => navLinkClass(isActive)}>Home</NavLink>
+          {user?.role === 'brand' && <NavLink to="/brand/discovery" className={({ isActive }) => navLinkClass(isActive)}>Find creators</NavLink>}
+          {user?.role === 'brand' && <NavLink to="/brand/shortlists" className={({ isActive }) => navLinkClass(isActive)}>Shortlists</NavLink>}
+          {user?.role === 'brand' && <NavLink to="/brand/campaigns" className={({ isActive }) => navLinkClass(isActive)}>Campaigns</NavLink>}
+          {user?.role === 'brand' && <NavLink to="/brand/dashboard" className={({ isActive }) => navLinkClass(isActive)}>Dashboard</NavLink>}
+          {user?.role === 'influencer' && <NavLink to="/influencer/explore" className={({ isActive }) => navLinkClass(isActive)}>Explore campaigns</NavLink>}
+          {user?.role === 'influencer' && <NavLink to="/influencer/inbox" className={({ isActive }) => navLinkClass(isActive)}>Inbox</NavLink>}
+          {user?.role === 'influencer' && <NavLink to="/payments" className={({ isActive }) => navLinkClass(isActive)}>Payments</NavLink>}
+          {user && <NavLink to="/chat" className={({ isActive }) => navLinkClass(isActive || unreadChat > 0)}>Chat{unreadChat > 0 ? ` (${unreadChat})` : ''}</NavLink>}
+          {user && <NavLink to="/notifications" className={({ isActive }) => `${navLinkClass(isActive || unreadNotifs > 0)} px-2`}>🔔{unreadNotifs > 0 ? ` ${unreadNotifs}` : ''}</NavLink>}
+          {user?.role === 'influencer' && <NavLink to="/influencer/dashboard" className={({ isActive }) => navLinkClass(isActive)}>Dashboard</NavLink>}
+          {user && <NavLink to="/settings" className={({ isActive }) => navLinkClass(isActive)}>Settings</NavLink>}
+          {user?.role === 'admin' && <NavLink to="/admin" className={({ isActive }) => navLinkClass(isActive)}>⚙ Admin</NavLink>}
         </nav>
         <div className="flex items-center gap-2 sm:gap-3">
           <button
@@ -156,6 +165,7 @@ export default function App() {
             <Route path="/chat" element={<Protected><Chat /></Protected>} />
             <Route path="/notifications" element={<Protected><Notifications /></Protected>} />
             <Route path="/payments" element={<Protected><Payments /></Protected>} />
+            <Route path="/settings" element={<Protected><Settings /></Protected>} />
             <Route path="/influencer/dashboard" element={<Protected roles={['influencer']}><InfluencerDashboard /></Protected>} />
             <Route path="/admin" element={<Protected roles={['admin']}><AdminDashboard /></Protected>} />
             <Route path="/about" element={<InfoPage page="about" />} />

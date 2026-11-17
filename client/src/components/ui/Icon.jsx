@@ -16,7 +16,11 @@ const paths = {
   instagram: <><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" /></>,
   arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
   check: <path d="m4 12.5 5 5L20 6.5" />,
-  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c3 3.5 3 14.5 0 18-3-3.5-3-14.5 0-18z" /></>
+  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c3 3.5 3 14.5 0 18-3-3.5-3-14.5 0-18z" /></>,
+  eye: <><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></>,
+  'eye-off': <><path d="M10.4 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 4" /><path d="M6.3 6.7A16.9 16.9 0 0 0 2 12s3.6 7 10 7a9.8 9.8 0 0 0 4.1-.9" /><path d="m3 3 18 18" /></>,
+  lock: <><rect x="4" y="10" width="16" height="11" rx="2.5" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></>,
+  user: <><circle cx="12" cy="8" r="3.5" /><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" /></>
 };
 
 export default function Icon({ name, size = 22, className = '', gradientId, gradient = false }) {

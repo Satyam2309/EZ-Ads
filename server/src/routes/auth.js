@@ -1,9 +1,13 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { attachUser, requireAuth } from '../middleware/session.js';
-import { parseBody, registerBrandSchema, loginSchema, passwordResetRequestSchema, passwordResetSchema } from '../validators/authSchemas.js';
+import {
+  parseBody, registerBrandSchema, loginSchema, passwordResetRequestSchema, passwordResetSchema,
+  selfProfileUpdateSchema, changePasswordSchema
+} from '../validators/authSchemas.js';
 import {
   registerBrandHandler, loginBrandHandler, loginAdminHandler, logoutHandler, meHandler,
+  getAccountHandler, updateAccountHandler, changePasswordHandler,
   verifyEmailHandler, requestPasswordResetHandler, resetPasswordHandler, devMailboxHandler,
   instagramStartHandler, instagramCallbackHandler, instagramMockCallbackHandler
 } from '../controllers/authController.js';
@@ -34,6 +38,15 @@ router.post('/login/admin', adminLimiter, asyncHandler(async (req, res) => {
 }));
 router.post('/logout', asyncHandler(logoutHandler));
 router.get('/me', requireAuth, asyncHandler(meHandler));
+
+/* ---------- Own account: settings page ---------- */
+router.get('/account', requireAuth, asyncHandler(getAccountHandler));
+router.patch('/account', requireAuth,
+  asyncHandler(async (req, _res, next) => { req.body = parseBody(selfProfileUpdateSchema, req.body); next(); }),
+  asyncHandler(updateAccountHandler));
+router.post('/account/password', requireAuth,
+  asyncHandler(async (req, _res, next) => { req.body = parseBody(changePasswordSchema, req.body); next(); }),
+  asyncHandler(changePasswordHandler));
 router.get('/verify-email', resetLimiter, asyncHandler(verifyEmailHandler));
 router.post('/password-reset-request', resetLimiter,
   asyncHandler(async (req, _res, next) => { req.body = parseBody(passwordResetRequestSchema, req.body); next(); }),

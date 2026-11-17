@@ -1,5 +1,6 @@
 import {
-  registerBrand, loginBrand, loginAdmin, verifyEmail, requestPasswordReset, resetPassword
+  registerBrand, loginBrand, loginAdmin, verifyEmail, requestPasswordReset, resetPassword,
+  getOwnAccount, updateOwnAccount, changeOwnPassword
 } from '../services/authService.js';
 import {
   buildAuthorizeUrl, exchangeCodeForIdentity, mockIdentity, upsertInfluencerFromIdentity, oauthMode
@@ -67,6 +68,22 @@ export async function meHandler(req, res) {
         : undefined
     }
   });
+}
+
+/* ---------------- Own account (settings page) ---------------- */
+
+export async function getAccountHandler(req, res) {
+  res.json({ ok: true, data: await getOwnAccount(req.user) });
+}
+
+export async function updateAccountHandler(req, res) {
+  const result = await updateOwnAccount(req.user, req.body, req);
+  res.json({ ok: true, data: result });
+}
+
+export async function changePasswordHandler(req, res) {
+  const result = await changeOwnPassword(req.user, req.body, req);
+  res.json({ ok: true, data: result });
 }
 
 export async function verifyEmailHandler(req, res) {

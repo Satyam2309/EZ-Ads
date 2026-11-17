@@ -53,6 +53,7 @@ export default function BrandDashboard() {
           <Button size="sm" to="/brand/campaigns"><Icon name="rocket" size={16} /> New campaign</Button>
           <Button size="sm" variant="secondary" to="/brand/discovery"><Icon name="search" size={16} /> Find creators</Button>
           <Button size="sm" variant="ghost" to="/chat"><Icon name="message" size={16} /> Chat{inbox > 0 ? ` (${inbox})` : ''}</Button>
+          <Button size="sm" variant="ghost" to="/settings"><Icon name="user" size={16} /> Profile settings</Button>
           {user.emailVerified
             ? <Badge tone="success">Email verified</Badge>
             : <Badge tone="warning">Check your inbox to verify your email</Badge>}

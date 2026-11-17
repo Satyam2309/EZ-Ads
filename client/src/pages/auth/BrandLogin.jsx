@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
+import PasswordInput from '../../components/ui/PasswordInput.jsx';
 import AuthStory, { useAuthSwap } from '../../components/auth/AuthStory.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -146,13 +147,12 @@ export default function BrandLogin() {
                     Forgot password?
                   </Link>
                 </div>
-                <input
+                <PasswordInput
                   id="password"
-                  type="password"
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-neutral-300 bg-(--color-surface) px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  inputClassName="mt-1 block w-full rounded-lg border border-neutral-300 bg-(--color-surface) px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 />
               </div>
               <Button type="submit" size="lg" className="w-full" disabled={busy}>

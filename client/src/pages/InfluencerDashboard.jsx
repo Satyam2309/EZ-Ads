@@ -53,6 +53,7 @@ export default function InfluencerDashboard() {
           <Button size="sm" to="/influencer/explore"><Icon name="search" size={16} /> Explore campaigns</Button>
           <Button size="sm" variant="secondary" to="/influencer/inbox"><Icon name="message" size={16} /> My inbox</Button>
           <Button size="sm" variant="ghost" to="/chat"><Icon name="message" size={16} /> Chat{inbox > 0 ? ` (${inbox})` : ''}</Button>
+          <Button size="sm" variant="ghost" to="/settings"><Icon name="user" size={16} /> Profile settings</Button>
         </div>
       </DashboardHero>
 

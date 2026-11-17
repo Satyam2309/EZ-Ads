@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { User, BrandProfile, AuditLog } from '../models/index.js';
+import { User, BrandProfile, InfluencerProfile, AuditLog } from '../models/index.js';
 import { AppError, badRequest, unauthorized, notFound } from '../utils/errors.js';
 import { sha256, randomToken } from '../utils/tokens.js';
 import { sendMail, buildVerificationEmail, buildWelcomeEmail, buildPasswordResetEmail } from './emailService.js';
@@ -162,4 +162,81 @@ export async function resetPassword(token, newPassword) {
   await user.save();
   await audit('auth.password_reset', user._id);
   return user;
+}
+
+/* ---------------- Self-service account settings ----------------
+   Brands edit company details, creators edit their public profile. Account
+   identity (email, role, status) is never writable from here. */
+
+export async function getOwnAccount(user) {
+  const profile = user.role === 'brand'
+    ? await BrandProfile.findOne({ user: user._id })
+    : user.role === 'influencer'
+      ? await InfluencerProfile.findOne({ user: user._id })
+      : null;
+  return {
+    id: user._id,
+    role: user.role,
+    email: user.email,
+    emailVerified: user.emailVerified,
+    displayName: user.displayName,
+    status: user.status,
+    // creators sign in with Instagram — no password exists to change
+    canChangePassword: user.role !== 'influencer',
+    profile
+  };
+}
+
+export async function updateOwnAccount(user, input, req) {
+  const name = input.companyName ?? input.displayName;
+  if (name) await User.updateOne({ _id: user._id }, { $set: { displayName: name } });
+
+  if (user.role === 'brand') {
+    const set = {};
+    if (input.companyName) set.companyName = input.companyName;
+    if (input.industry) set.industry = input.industry;
+    if (input.website !== undefined) set.website = input.website || undefined;
+    if (input.phone !== undefined) set['contact.phone'] = input.phone || undefined;
+    if (input.city !== undefined) set['contact.city'] = input.city || undefined;
+    if (input.country !== undefined) set['contact.country'] = input.country || undefined;
+    if (input.about !== undefined) set.about = input.about;
+    if (Object.keys(set).length) {
+      await BrandProfile.updateOne({ user: user._id }, { $set: set }, { runValidators: true });
+    }
+  } else if (user.role === 'influencer') {
+    const set = {};
+    if (name) set.displayName = name;
+    if (input.bio !== undefined) set.bio = input.bio;
+    if (input.city !== undefined) set['location.city'] = input.city || undefined;
+    if (input.country !== undefined) set['location.country'] = input.country || undefined;
+    if (Object.keys(set).length) {
+      await InfluencerProfile.updateOne({ user: user._id }, { $set: set }, { runValidators: true });
+    }
+  }
+
+  await audit('account.profile.update', user._id, { fields: Object.keys(input) }, req);
+  return { updated: Object.keys(input) };
+}
+
+export async function changeOwnPassword(user, { currentPassword, newPassword }, req) {
+  // Influencers authenticate through Instagram OAuth and have no password at all.
+  if (user.role === 'influencer') {
+    throw badRequest('This account signs in with Instagram — there is no password to change.');
+  }
+  const doc = await User.findById(user._id).select('+passwordHash');
+  if (!doc?.passwordHash) throw badRequest('No password is set on this account.');
+
+  const ok = await bcrypt.compare(currentPassword, doc.passwordHash);
+  if (!ok) throw new AppError('Current password is incorrect', 401, 'INVALID_PASSWORD');
+  if (currentPassword === newPassword) {
+    throw badRequest('Choose a new password that is different from the current one');
+  }
+
+  doc.passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  // any outstanding reset link stops working once the owner picks a password
+  doc.passwordResetTokenHash = undefined;
+  doc.passwordResetExpiresAt = undefined;
+  await doc.save();
+  await audit('account.password.change', user._id, {}, req);
+  return { changed: true };
 }

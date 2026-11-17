@@ -39,6 +39,13 @@ export function AuthProvider({ children }) {
     return me.data;
   }, []);
 
+  // Re-read the signed-in account (e.g. after saving profile settings).
+  const refreshUser = useCallback(async () => {
+    const me = await api.get('/auth/me');
+    setUser(me.data);
+    return me.data;
+  }, []);
+
   const logout = useCallback(async () => {
     await api.post('/auth/logout');
     setUser(null);
@@ -67,7 +74,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, registerBrand, loginBrand, loginAdmin, logout, connectInstagram }}>
+    <AuthContext.Provider value={{ user, loading, registerBrand, loginBrand, loginAdmin, logout, connectInstagram, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

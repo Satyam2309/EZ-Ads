@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
+import PasswordInput from '../../components/ui/PasswordInput.jsx';
 import AuthStory, { useAuthSwap } from '../../components/auth/AuthStory.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -111,7 +112,7 @@ export default function BrandRegister() {
             </div>
             <div>
               <label htmlFor="password" className={label}>Password</label>
-              <input id="password" type="password" autoComplete="new-password" value={form.password} onChange={set('password')} className={input} />
+              <PasswordInput id="password" autoComplete="new-password" value={form.password} onChange={set('password')} inputClassName={input} />
               <p className="mt-1 text-xs text-(--color-ink-soft)">8+ characters, letters and numbers.</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
