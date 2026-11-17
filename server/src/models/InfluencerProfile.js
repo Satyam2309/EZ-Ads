@@ -61,6 +61,32 @@ const influencerProfileSchema = new Schema(
 
     portfolio: [portfolioItemSchema],
 
+    // Real-time Instagram analytics synced from Meta Graph API
+    instagramInsights: {
+      followersCount: { type: Number, default: 0 },
+      mediaCount: { type: Number, default: 0 },
+      engagementRate: { type: Number, default: 0 }, // percent
+      avgLikes: { type: Number, default: 0 },
+      avgComments: { type: Number, default: 0 },
+      totalReach: { type: Number, default: 0 },
+      avgReach: { type: Number, default: 0 },
+      totalImpressions: { type: Number, default: 0 },
+      avgImpressions: { type: Number, default: 0 },
+      profileViews: { type: Number, default: 0 },
+      websiteTaps: { type: Number, default: 0 },
+      newFollows: { type: Number, default: 0 },
+      reachTrend: [{ date: String, value: Number, _id: false }],
+      impressionsTrend: [{ date: String, value: Number, _id: false }],
+      followersTrend: [{ date: String, value: Number, _id: false }],
+      audienceCountry: [{ country: String, pct: Number, _id: false }],
+      audienceAge: [{ range: String, pct: Number, _id: false }],
+      audienceGender: { M: Number, F: Number, U: Number },
+      profilePicture: String,
+      biography: String,
+      website: String,
+      syncedAt: { type: Date }
+    },
+
     otherProfiles: [
       {
         platform: { type: String, required: true, trim: true, lowercase: true },

@@ -65,8 +65,26 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const connectInstagram = useCallback(async () => {
+    const start = await api.get('/auth/instagram/start');
+    const { mode, state, authorizeUrl } = start.data;
+    if (mode === 'live') {
+      if (!authorizeUrl) throw new Error('Server did not return an Instagram authorization URL');
+      window.location.assign(authorizeUrl);
+      return { mode };
+    }
+    const mockUser = prompt(
+      'DEVELOPMENT MOCK (Simulated Meta OAuth):\nEnter a mock Instagram username to connect:'
+    );
+    if (!mockUser) return { mode: 'mock', cancelled: true };
+    await api.post('/auth/instagram/mock-callback', { state, mockUser });
+    const me = await api.get('/auth/me');
+    setUser(me.data);
+    return { mode: 'mock', success: true };
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, registerBrand, loginBrand, registerCreator, loginCreator, loginAdmin, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, registerBrand, loginBrand, registerCreator, loginCreator, loginAdmin, logout, refreshUser, connectInstagram }}>
       {children}
     </AuthContext.Provider>
   );

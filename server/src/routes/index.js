@@ -7,6 +7,7 @@ import campaignRouter from './campaigns.js';
 import chatRouter from './chat.js';
 import dashboardRouter from './dashboard.js';
 import adminRouter from './admin.js';
+import instagramRouter from './instagram.js';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use(campaignRouter);
 router.use(chatRouter);
 router.use(dashboardRouter);
 router.use('/admin', adminRouter);
+router.use('/instagram', instagramRouter);
 
 export default router;
