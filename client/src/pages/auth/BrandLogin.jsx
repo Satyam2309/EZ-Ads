@@ -84,7 +84,7 @@ export default function BrandLogin() {
           <p className="mt-1.5 text-sm text-(--color-ink-soft)">
             {role === 'brand'
               ? 'Log in to run campaigns and manage creator partnerships.'
-              : 'Log in with the Instagram account you create with.'}
+              : 'Log in with your email to access your creator dashboard.'}
           </p>
 
           <div role="group" aria-label="Choose your role" className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-(--color-elevated) p-1.5 ring-1 ring-inset ring-(--color-line)">
@@ -162,14 +162,16 @@ export default function BrandLogin() {
           ) : (
             <div className="mt-6 space-y-4">
               <div className="rounded-xl border border-(--color-line) bg-(--color-surface) p-4 text-sm leading-relaxed text-(--color-ink-soft)">
-                Creators sign in with an Instagram <strong className="font-semibold text-(--color-ink)">professional account</strong>{' '}
-                (Business or Creator) — a Meta requirement. EZ Ads never sees your Instagram password.
+                Creators sign in with their <strong className="font-semibold text-(--color-ink)">email and password</strong>. No Instagram app approval needed — just enter your handle as part of your profile.
               </div>
-              <Button size="lg" className="w-full" to="/auth/instagram">
-                Continue with Instagram
+              <Button size="lg" className="w-full" to="/login/creator">
+                Log in as creator
               </Button>
               <p className="text-center text-xs text-(--color-ink-soft)">
-                Playing with the demo? The dev flow is clearly labelled as simulated.
+                New creator?{' '}
+                <Link to="/register/creator" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-300">
+                  Create a creator account
+                </Link>
               </p>
             </div>
           )}

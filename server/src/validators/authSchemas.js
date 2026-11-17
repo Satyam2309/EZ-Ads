@@ -23,6 +23,15 @@ export const registerBrandSchema = z.object({
   phone: z.string().trim().max(20).optional().or(z.literal(''))
 });
 
+export const registerCreatorSchema = z.object({
+  displayName: z.string().trim().min(2, 'Enter your name').max(80),
+  email: z.string().trim().email().max(200),
+  password: strongPassword,
+  instagramUsername: z.string().trim().min(1, 'Enter your Instagram username').max(40)
+    .transform((v) => v.replace(/^@/, '').toLowerCase()),
+  niche: z.string().trim().min(2, 'Pick a niche / content category').max(60)
+});
+
 // login inputs must be plain strings — mongoSanitize removes $ operators and
 // leaves empty objects behind, so this also turns NoSQL-injection payloads into a 400
 export const loginSchema = z.object({

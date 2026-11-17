@@ -2,11 +2,12 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { attachUser, requireAuth } from '../middleware/session.js';
 import {
-  parseBody, registerBrandSchema, loginSchema, passwordResetRequestSchema, passwordResetSchema,
+  parseBody, registerBrandSchema, registerCreatorSchema, loginSchema, passwordResetRequestSchema, passwordResetSchema,
   selfProfileUpdateSchema, changePasswordSchema
 } from '../validators/authSchemas.js';
 import {
-  registerBrandHandler, loginBrandHandler, loginAdminHandler, logoutHandler, meHandler,
+  registerBrandHandler, registerCreatorHandler, loginBrandHandler, loginCreatorHandler,
+  loginAdminHandler, logoutHandler, meHandler,
   getAccountHandler, updateAccountHandler, changePasswordHandler,
   verifyEmailHandler, requestPasswordResetHandler, resetPasswordHandler, devMailboxHandler,
   instagramStartHandler, instagramCallbackHandler, instagramMockCallbackHandler
@@ -31,6 +32,16 @@ router.post('/register/brand', loginLimiter, asyncHandler(async (req, res) => {
 router.post('/login/brand', loginLimiter, asyncHandler(async (req, res) => {
   req.body = parseBody(loginSchema, req.body); // string-typed email/password or clean 400
   await loginBrandHandler(req, res);
+}));
+
+/* ---------- Creator (influencer) ---------- */
+router.post('/register/creator', loginLimiter, asyncHandler(async (req, res) => {
+  req.body = parseBody(registerCreatorSchema, req.body);
+  await registerCreatorHandler(req, res);
+}));
+router.post('/login/creator', loginLimiter, asyncHandler(async (req, res) => {
+  req.body = parseBody(loginSchema, req.body);
+  await loginCreatorHandler(req, res);
 }));
 router.post('/login/admin', adminLimiter, asyncHandler(async (req, res) => {
   req.body = parseBody(loginSchema, req.body);

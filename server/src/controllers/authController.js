@@ -1,5 +1,5 @@
 import {
-  registerBrand, loginBrand, loginAdmin, verifyEmail, requestPasswordReset, resetPassword,
+  registerBrand, registerCreator, loginBrand, loginCreator, loginAdmin, verifyEmail, requestPasswordReset, resetPassword,
   getOwnAccount, updateOwnAccount, changeOwnPassword
 } from '../services/authService.js';
 import {
@@ -10,6 +10,26 @@ import { setSessionCookie, clearSessionCookie } from '../middleware/session.js';
 import { badRequest, unauthorized, AppError } from '../utils/errors.js';
 import { env, isProd, oauthMockMode } from '../config/env.js';
 import { latestDevToken } from '../services/devMailbox.js';
+
+/* ---------------- Creator auth ---------------- */
+
+export async function registerCreatorHandler(req, res) {
+  const user = await registerCreator(req.body, req);
+  setSessionCookie(res, user);
+  res.status(201).json({
+    ok: true,
+    data: { id: user._id, email: user.email, emailVerified: false, role: 'influencer' }
+  });
+}
+
+export async function loginCreatorHandler(req, res) {
+  const user = await loginCreator(req.body.email, req.body.password, req);
+  setSessionCookie(res, user);
+  res.json({
+    ok: true,
+    data: { id: user._id, email: user.email, emailVerified: user.emailVerified, role: user.role }
+  });
+}
 
 /* ---------------- Brand auth ---------------- */
 
@@ -60,10 +80,10 @@ export async function meHandler(req, res) {
       instagram: u.role === 'influencer'
         ? {
             username: u.instagram?.username,
-            connected: Boolean(u.instagram?.providerId),
+            connected: Boolean(u.instagram?.username),
             accountType: u.instagram?.accountType,
-            reauthRequired: u.instagram?.reauthRequired,
-            isMock: Boolean(u.instagram?.isMock)
+            reauthRequired: false,
+            isMock: false
           }
         : undefined
     }

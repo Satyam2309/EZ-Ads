@@ -1,69 +1,154 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import Card from '../../components/ui/Card.jsx';
-import { api } from '../../api/client.js';
+import PasswordInput from '../../components/ui/PasswordInput.jsx';
+import AuthStory, { useAuthSwap } from '../../components/auth/AuthStory.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
-export default function InstagramConnect() {
-  const { connectInstagram } = useAuth();
-  const navigate = useNavigate();
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState(null);
+const POINTS = [
+  'Free to join — start getting discovered today',
+  'Brands find you based on niche, style and audience'
+];
 
-  async function onConnect() {
+const NICHES = [
+  'Fashion', 'Beauty', 'Food & Beverage', 'Health & Fitness', 'Technology', 'Gaming',
+  'Education', 'Finance', 'Travel', 'Entertainment', 'Lifestyle', 'Sports',
+  'Comedy', 'Music', 'Art & Design', 'Parenting', 'Business', 'Other'
+];
+
+const input = 'mt-1 block w-full rounded-lg border border-neutral-300 bg-(--color-surface) px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100';
+const label = 'block text-sm font-medium text-(--color-ink)';
+
+export default function CreatorRegister() {
+  const { registerCreator } = useAuth();
+  const navigate = useNavigate();
+  const [leaving, swapTo] = useAuthSwap();
+  const [form, setForm] = useState({ displayName: '', email: '', password: '', instagramUsername: '', niche: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  function validate() {
+    if (form.displayName.trim().length < 2) return 'Enter your name.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return 'Enter a valid email address.';
+    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      return 'Password must be 8+ characters with letters and numbers.';
+    }
+    if (!form.instagramUsername.trim()) return 'Enter your Instagram username.';
+    if (!form.niche) return 'Pick your content niche.';
+    return '';
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    const v = validate();
+    if (v) return setError(v);
+    setError('');
     setBusy(true);
-    setMessage(null);
     try {
-      const res = await connectInstagram();
-      if (res?.cancelled) return setMessage({ tone: 'neutral', text: 'Connect cancelled — you can try again anytime.' });
-      if (res?.mode === 'mock') {
-        navigate('/influencer/dashboard');
-      } else {
-        setMessage({ tone: 'info', text: 'Redirecting to Meta…' });
-      }
+      await registerCreator({
+        displayName: form.displayName.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        instagramUsername: form.instagramUsername.trim().replace(/^@/, ''),
+        niche: form.niche.toLowerCase()
+      });
+      navigate('/influencer/dashboard');
     } catch (err) {
-      setMessage({ tone: 'error', text: err.message });
+      setError(err.message);
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-md p-8">
-        <div className="flex items-center gap-2">
-          <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1Zm0 1.8c-3.1 0-3.5 0-4.8.1-1.1 0-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.4 1-.4 2.1-.1 1.3-.1 1.7-.1 4.8s0 3.5.1 4.8c0 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .4 2.1.4 1.3.1 1.7.1 4.8.1s3.5 0 4.8-.1c1.1 0 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.4-1 .4-2.1.1-1.3.1-1.7.1-4.8s0-3.5-.1-4.8c0-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.4-2.1-.4-1.3-.1-1.7-.1-4.8-.1Zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm5.2-2.9a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z" /></svg>
-          <h1 className="text-xl font-bold">Creator sign-in</h1>
+    <div className={`auth-page grid min-h-[calc(100vh-4rem)] lg:grid-cols-[1.05fr_1fr] ${leaving ? 'is-leaving' : ''}`}>
+      {/* ---- story panel ---- */}
+      <section className="hidden overflow-hidden border-r border-(--color-line) lg:flex">
+        <AuthStory
+          points={POINTS}
+          footnote="Your Instagram account stays yours — we never ask for your Instagram password."
+        />
+      </section>
+
+      {/* ---- form panel ---- */}
+      <section className="px-4 py-12 sm:px-8 lg:py-16">
+        <div className="mx-auto w-full max-w-lg">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-(--color-ink-soft)">
+            Join as a creator
+          </p>
+          <h1 className="mt-3 font-(family:--font-display) text-2xl font-bold tracking-tight">
+            Create your creator account
+          </h1>
+          <p className="mt-1.5 text-sm text-(--color-ink-soft)">
+            Get discovered by brands, apply to campaigns, and earn — all in one place.
+          </p>
+
+          {error && (
+            <div role="alert" className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-200">
+              {error}
+            </div>
+          )}
+
+          <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
+            <div>
+              <label htmlFor="displayName" className={label}>Your name</label>
+              <input id="displayName" value={form.displayName} onChange={set('displayName')} className={input} placeholder="e.g. Priya Sharma" />
+            </div>
+            <div>
+              <label htmlFor="email" className={label}>Email address</label>
+              <input id="email" type="email" autoComplete="email" value={form.email} onChange={set('email')} className={input} />
+            </div>
+            <div>
+              <label htmlFor="password" className={label}>Password</label>
+              <PasswordInput id="password" autoComplete="new-password" value={form.password} onChange={set('password')} inputClassName={input} />
+              <p className="mt-1 text-xs text-(--color-ink-soft)">8+ characters, letters and numbers.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="igUsername" className={label}>Instagram username</label>
+                <div className="relative mt-1">
+                  <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-(--color-ink-soft)">@</span>
+                  <input
+                    id="igUsername"
+                    value={form.instagramUsername}
+                    onChange={set('instagramUsername')}
+                    placeholder="yourhandle"
+                    className={`${input} !mt-0 pl-7`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="niche" className={label}>Content niche</label>
+                <select id="niche" value={form.niche} onChange={set('niche')} className={input}>
+                  <option value="">Select…</option>
+                  {NICHES.map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+            </div>
+            <Button type="submit" size="lg" className="w-full" disabled={busy}>
+              {busy ? 'Creating account…' : 'Create creator account'}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-(--color-ink-soft)">
+            Already registered?{' '}
+            <Link
+              to="/login/creator"
+              onClick={(e) => { e.preventDefault(); swapTo('/login/creator'); }}
+              className="font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-300"
+            >
+              Log in
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-xs text-(--color-ink-soft)">
+            Joining as a brand?{' '}
+            <Link to="/register/brand" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-300">
+              Brand sign-up
+            </Link>
+          </p>
         </div>
-
-        <p className="mt-3 text-sm text-neutral-600">
-          Connect your Instagram professional account through Meta's official authorization screen.
-          EZ Ads never sees your Instagram password.
-        </p>
-
-        <ul className="mt-4 space-y-2 text-sm text-neutral-600">
-          <li className="flex gap-2"><span className="text-brand-600">•</span> Requires an Instagram <strong>professional account</strong> (Business or Creator) — a Meta requirement.</li>
-          <li className="flex gap-2"><span className="text-brand-600">•</span> We request only <code className="text-xs">instagram_business_basic</code> — profile fields, not messaging or publishing.</li>
-          <li className="flex gap-2"><span className="text-brand-600">•</span> You'll set your niche, rates, and portfolio right after connecting.</li>
-        </ul>
-
-        {message && (
-          <div className={`mt-4 rounded-lg px-4 py-3 text-sm ring-1 ring-inset ${
-            message.tone === 'error' ? 'bg-red-50 text-red-700 ring-red-200' : 'bg-brand-50 text-brand-700 ring-brand-200'
-          }`}>
-            {message.text}
-          </div>
-        )}
-
-        <Button className="mt-6 w-full" onClick={onConnect} disabled={busy}>
-          {busy ? 'Connecting…' : 'Continue with Instagram'}
-        </Button>
-
-        <p className="mt-4 text-center text-sm text-neutral-500">
-          Brand or agency? <Link to="/login/brand" className="font-medium text-brand-600 hover:text-brand-700">Log in here</Link>
-        </p>
-      </Card>
+      </section>
     </div>
   );
 }

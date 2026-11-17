@@ -31,6 +31,20 @@ export function AuthProvider({ children }) {
     return me.data;
   }, []);
 
+  const registerCreator = useCallback(async (payload) => {
+    const res = await api.post('/auth/register/creator', payload);
+    const me = await api.get('/auth/me');
+    setUser(me.data);
+    return res.data;
+  }, []);
+
+  const loginCreator = useCallback(async (email, password) => {
+    await api.post('/auth/login/creator', { email, password });
+    const me = await api.get('/auth/me');
+    setUser(me.data);
+    return me.data;
+  }, []);
+
   // Admin credentials are provisioned only via the server-side seed script.
   const loginAdmin = useCallback(async (email, password) => {
     await api.post('/auth/login/admin', { email, password });
@@ -51,30 +65,8 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  const connectInstagram = useCallback(async () => {
-    const start = await api.get('/auth/instagram/start');
-    const { mode, state, authorizeUrl } = start.data;
-    if (mode === 'live') {
-      if (!authorizeUrl) throw new Error('Server did not return an Instagram authorization URL');
-      window.location.assign(authorizeUrl); // real Meta authorization screen
-      return { mode };
-    }
-    // Development-only mock flow — the user is told plainly this is NOT real Instagram.
-    // In real-mode this page never appears; Meta's own authorization screen is shown.
-    const mockUser = prompt(
-      'DEVELOPMENT MOCK (no real Instagram authentication):\n' +
-      'Meta app credentials are not configured, so this flow simulates the OAuth exchange.\n' +
-      'Enter a mock username to simulate a professional creator account:'
-    );
-    if (!mockUser) return { mode: 'mock', cancelled: true };
-    const cb = await api.post('/auth/instagram/mock-callback', { state, mockUser });
-    const me = await api.get('/auth/me');
-    setUser(me.data);
-    return { mode: 'mock', user: cb.data };
-  }, []);
-
   return (
-    <AuthContext.Provider value={{ user, loading, registerBrand, loginBrand, loginAdmin, logout, connectInstagram, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, registerBrand, loginBrand, registerCreator, loginCreator, loginAdmin, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

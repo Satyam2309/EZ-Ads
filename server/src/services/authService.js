@@ -90,6 +90,58 @@ export async function verifyEmail(token) {
   return user;
 }
 
+export async function registerCreator(input, req) {
+  const email = input.email.toLowerCase().trim();
+  const existing = await User.findOne({ email });
+  if (existing) throw new AppError('An account with this email already exists', 409, 'EMAIL_TAKEN');
+
+  const igHandle = input.instagramUsername.replace(/^@/, '').toLowerCase().trim();
+
+  const user = await User.create({
+    role: 'influencer',
+    email,
+    passwordHash: await bcrypt.hash(input.password, BCRYPT_ROUNDS),
+    displayName: input.displayName,
+    emailVerified: false,
+    instagram: { username: igHandle }
+  });
+  await InfluencerProfile.create({
+    user: user._id,
+    displayName: input.displayName,
+    username: igHandle,
+    niche: input.niche
+  });
+
+  const verifyToken = randomToken();
+  await User.updateOne(
+    { _id: user._id },
+    { emailVerificationTokenHash: sha256(verifyToken) }
+  );
+  try {
+    await sendVerificationEmail(email, input.displayName, verifyToken);
+  } catch (err) {
+    console.error('[email] non-fatal verification send error:', err.message);
+  }
+  await audit('auth.register.creator', user._id, { email, instagramUsername: igHandle }, req);
+  return user;
+}
+
+export async function loginCreator(email, password, req) {
+  const user = await User.findOne({ email: email.toLowerCase().trim(), role: 'influencer' }).select('+passwordHash');
+  if (!user) {
+    await bcrypt.compare(password, '$2a$12$0000000000000000000000000000000000000000000000000000');
+    throw unauthorized('Invalid email or password');
+  }
+  if (user.status === 'suspended') throw new AppError('Account suspended — contact support', 403, 'ACCOUNT_SUSPENDED');
+  const ok = await bcrypt.compare(password, user.passwordHash || '');
+  if (!ok) {
+    await audit('auth.login.creator.failed', user._id, {}, req);
+    throw unauthorized('Invalid email or password');
+  }
+  await audit('auth.login.creator', user._id, {}, req);
+  return user;
+}
+
 export async function loginBrand(email, password, req) {
   const user = await User.findOne({ email: email.toLowerCase().trim(), role: 'brand' }).select('+passwordHash');
   // constant-ish response regardless of which half failed (no user enumeration)
@@ -125,7 +177,7 @@ export async function loginAdmin(email, password, req) {
 }
 
 export async function requestPasswordReset(email) {
-  const user = await User.findOne({ email: email.toLowerCase().trim(), role: 'brand' });
+  const user = await User.findOne({ email: email.toLowerCase().trim(), role: { $in: ['brand', 'influencer'] } });
   if (!user) return; // no enumeration: identical response either way
   const token = randomToken();
   await User.updateOne(
@@ -181,8 +233,8 @@ export async function getOwnAccount(user) {
     emailVerified: user.emailVerified,
     displayName: user.displayName,
     status: user.status,
-    // creators sign in with Instagram — no password exists to change
-    canChangePassword: user.role !== 'influencer',
+    // creators now sign in with email+password, same as brands
+    canChangePassword: true,
     profile
   };
 }
@@ -219,10 +271,6 @@ export async function updateOwnAccount(user, input, req) {
 }
 
 export async function changeOwnPassword(user, { currentPassword, newPassword }, req) {
-  // Influencers authenticate through Instagram OAuth and have no password at all.
-  if (user.role === 'influencer') {
-    throw badRequest('This account signs in with Instagram — there is no password to change.');
-  }
   const doc = await User.findById(user._id).select('+passwordHash');
   if (!doc?.passwordHash) throw badRequest('No password is set on this account.');
 

@@ -145,8 +145,8 @@ export default function BrandRegister() {
           </p>
           <p className="mt-2 text-center text-xs text-(--color-ink-soft)">
             Joining as a creator?{' '}
-            <Link to="/auth/instagram" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-300">
-              Continue with Instagram
+            <Link to="/register/creator" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-300">
+              Create a creator account
             </Link>
           </p>
         </div>

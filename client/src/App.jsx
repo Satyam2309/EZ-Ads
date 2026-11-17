@@ -13,6 +13,7 @@ import ResetPassword from './pages/auth/ResetPassword.jsx';
 import VerifyEmail from './pages/auth/VerifyEmail.jsx';
 import InstagramConnect from './pages/auth/InstagramConnect.jsx';
 import InstagramCallback from './pages/auth/InstagramCallback.jsx';
+import CreatorLogin from './pages/auth/CreatorLogin.jsx';
 import BrandDashboard from './pages/BrandDashboard.jsx';
 import InfluencerDashboard from './pages/InfluencerDashboard.jsx';
 import Discovery from './pages/brand/Discovery.jsx';
@@ -127,7 +128,8 @@ function Navbar() {
             <Button variant="secondary" size="sm" onClick={() => { logout(); navigate('/'); }}>Log out</Button>
           ) : (
             <>
-              <Button variant="ghost" size="sm" to="/login/brand">Log in</Button>
+              <Button variant="ghost" size="sm" to="/login/brand">Brand login</Button>
+              <Button variant="ghost" size="sm" to="/login/creator" className="hidden sm:inline-flex">Creator login</Button>
               <Button size="sm" className="hidden sm:inline-flex" to="/register/brand">Get started</Button>
             </>
           )}
@@ -154,6 +156,8 @@ export default function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/auth/instagram" element={<InstagramConnect />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
+            <Route path="/register/creator" element={<InstagramConnect />} />
+            <Route path="/login/creator" element={<CreatorLogin />} />
             <Route path="/brand/dashboard" element={<Protected roles={['brand']}><BrandDashboard /></Protected>} />
             <Route path="/brand/discovery" element={<Protected roles={['brand']}><Discovery /></Protected>} />
             <Route path="/brand/creators/:id" element={<Protected roles={['brand']}><CreatorProfile /></Protected>} />
