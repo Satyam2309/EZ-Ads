@@ -59,8 +59,28 @@ if (isProd) {
   // Serve the built SPA from the API process (single-service deploy).
   const dist = path.resolve(process.cwd(), '../client/dist');
   if (fs.existsSync(path.join(dist, 'index.html'))) {
-    app.use(express.static(dist));
-    app.get(/^\/(?!api).*/, (_req, res) => res.sendFile(path.join(dist, 'index.html')));
+    app.use(
+      express.static(dist, {
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('index.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+          } else if (filePath.includes('/assets/') || filePath.includes('\\assets\\')) {
+            // Vite generated assets have hashes in filenames; safe to cache long-term
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+          } else {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+          }
+        }
+      })
+    );
+    app.get(/^\/(?!api).*/, (_req, res) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.sendFile(path.join(dist, 'index.html'));
+    });
     console.log(`[api] serving SPA from ${dist}`);
   } else {
     console.warn('[api] client/dist not found — API-only deploy');
