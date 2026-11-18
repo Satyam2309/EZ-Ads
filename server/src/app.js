@@ -10,7 +10,7 @@ import { attachUser } from './middleware/session.js';
 import originGuard from './middleware/originGuard.js';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
-import { env, isProd } from './config/env.js';
+import { env, isProd, clientOrigins } from './config/env.js';
 import { dbState } from './config/db.js';
 import apiRouter from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -24,7 +24,7 @@ app.disable('x-powered-by');
 app.use(helmet({ contentSecurityPolicy: isProd ? undefined : false }));
 app.use(
   cors({
-    origin: [env.CLIENT_ORIGIN],
+    origin: clientOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
   })

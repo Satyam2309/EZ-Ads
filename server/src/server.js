@@ -1,7 +1,7 @@
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import app from './app.js';
-import { env, isProd } from './config/env.js';
+import { env, isProd, clientOrigins } from './config/env.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import { registerChatSockets } from './sockets/chat.js';
 
@@ -10,7 +10,7 @@ const server = http.createServer(app);
 // Socket.IO server is created now; handshake auth + room authorization are enforced
 // in sockets/ in Phase 6. Until then only the client origin can connect.
 const io = new SocketIOServer(server, {
-  cors: { origin: [env.CLIENT_ORIGIN], credentials: true },
+  cors: { origin: clientOrigins, credentials: true },
   connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 }
 });
 app.set('io', io);
@@ -23,7 +23,7 @@ async function start() {
   await connectDB(); // non-fatal: app stays up; /api/health reports db state
   server.listen(env.PORT, () => {
     console.log(`[api] EZ Ads API listening on http://localhost:${env.PORT} (${env.NODE_ENV})`);
-    console.log(`[api] frontend origin: ${env.CLIENT_ORIGIN}`);
+    console.log(`[api] frontend origin: ${clientOrigins.join(', ')}`);
   });
 }
 

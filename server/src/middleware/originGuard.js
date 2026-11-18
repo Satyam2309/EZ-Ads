@@ -11,7 +11,7 @@
  * all and are unaffected — they cannot ambush someone else's cookie anyway.
  */
 import { forbidden } from '../utils/errors.js';
-import { env } from '../config/env.js';
+import { clientOrigins } from '../config/env.js';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
@@ -30,8 +30,8 @@ export function originGuard(req, _res, next) {
   const header = req.headers.origin || req.headers.referer;
   if (!header) return next(); // non-browser client
   const origin = originOf(header);
-  const allowed = originOf(env.CLIENT_ORIGIN);
-  if (allowed && origin === allowed) return next();
+  const allowed = clientOrigins.map(originOf).filter(Boolean);
+  if (origin && allowed.includes(origin)) return next();
   return next(forbidden('Cross-origin state-changing request blocked', 'ORIGIN_MISMATCH'));
 }
 
