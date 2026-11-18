@@ -1,8 +1,18 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../config/env.js';
 
-let transporter = null;
+/* ─── Resend (primary — works from any cloud) ─── */
+let resendClient = null;
+function getResendClient() {
+  if (!resendClient && env.RESEND_API_KEY) {
+    resendClient = new Resend(env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
+/* ─── Nodemailer (fallback — SMTP) ─── */
+let transporter = null;
 function getTransporter() {
   if (!transporter) {
     const port = Number(env.EMAIL_PORT) || 587;
@@ -20,14 +30,41 @@ function getTransporter() {
 }
 
 export async function sendMail({ to, subject, text, html }) {
-  try {
-    const info = await getTransporter().sendMail({ from: env.EMAIL_FROM, to, subject, text, html });
-    return info?.messageId;
-  } catch (err) {
-    console.error('[email] send failed:', err.message);
-    // Never crash caller if SMTP is unreachable
-    return null;
+  /* 1. Try Resend if API key is configured */
+  const resend = getResendClient();
+  if (resend) {
+    try {
+      const { data, error } = await resend.emails.send({
+        from: env.EMAIL_FROM,
+        to,
+        subject,
+        html,
+        text
+      });
+      if (error) {
+        console.error('[email] Resend error:', error);
+      } else {
+        console.log('[email] Resend sent:', data?.id);
+        return data?.id;
+      }
+    } catch (err) {
+      console.error('[email] Resend exception:', err.message);
+    }
   }
+
+  /* 2. Fall back to nodemailer/SMTP */
+  if (env.EMAIL_HOST) {
+    try {
+      const info = await getTransporter().sendMail({ from: env.EMAIL_FROM, to, subject, text, html });
+      console.log('[email] SMTP sent:', info?.messageId);
+      return info?.messageId;
+    } catch (err) {
+      console.error('[email] SMTP send failed:', err.message);
+    }
+  }
+
+  console.warn('[email] No email provider configured — email not sent');
+  return null;
 }
 
 /* ─────────────────────────────────────────────

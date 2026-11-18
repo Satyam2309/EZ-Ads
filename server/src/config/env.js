@@ -23,7 +23,8 @@ const schema = z.object({
   EMAIL_PORT: z.coerce.number().optional().default(587),
   EMAIL_USER: z.string().optional().default(''),
   EMAIL_PASS: z.string().optional().default(''),
-  EMAIL_FROM: z.string().default('EZ Ads <no-reply@ezads.example>')
+  EMAIL_FROM: z.string().default('EZ Ads <no-reply@ezads.example>'),
+  RESEND_API_KEY: z.string().optional().default('')
 });
 
 const parsed = schema.safeParse(process.env);
