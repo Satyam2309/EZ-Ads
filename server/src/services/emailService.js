@@ -29,7 +29,31 @@ function getTransporter() {
   return transporter;
 }
 
+/**
+ * Which transport can send right now. HTTPS APIs (Resend) work from hosts that
+ * block outbound SMTP — Render's free plan blocks ports 25/465/587 since
+ * September 2025, which makes GoDaddy SMTP time out there even though the same
+ * credentials work from a laptop.
+ */
+export function emailProvider() {
+  if (env.RESEND_API_KEY) return 'resend';
+  if (env.EMAIL_HOST && env.EMAIL_USER && env.EMAIL_PASS) return 'smtp';
+  return 'none';
+}
+
+let lastEmailError = null;
+
+/** Diagnostic only — never includes credentials. */
+export function emailStatus() {
+  return {
+    provider: emailProvider(),
+    lastError: lastEmailError ? { message: lastEmailError.message, at: lastEmailError.at } : null
+  };
+}
+
 export async function sendMail({ to, subject, text, html }) {
+  const failures = [];
+
   /* 1. Try Resend if API key is configured */
   const resend = getResendClient();
   if (resend) {
@@ -41,14 +65,14 @@ export async function sendMail({ to, subject, text, html }) {
         html,
         text
       });
-      if (error) {
-        console.error('[email] Resend error:', error);
-      } else {
+      if (!error) {
         console.log('[email] Resend sent:', data?.id);
+        lastEmailError = null;
         return data?.id;
       }
+      failures.push(`Resend: ${error.message || JSON.stringify(error)}`);
     } catch (err) {
-      console.error('[email] Resend exception:', err.message);
+      failures.push(`Resend: ${err.message}`);
     }
   }
 
@@ -57,13 +81,21 @@ export async function sendMail({ to, subject, text, html }) {
     try {
       const info = await getTransporter().sendMail({ from: env.EMAIL_FROM, to, subject, text, html });
       console.log('[email] SMTP sent:', info?.messageId);
+      lastEmailError = null;
       return info?.messageId;
     } catch (err) {
-      console.error('[email] SMTP send failed:', err.message);
+      failures.push(`SMTP ${env.EMAIL_HOST}:${env.EMAIL_PORT}: ${err.message}`);
     }
   }
 
-  console.warn('[email] No email provider configured — email not sent');
+  if (!failures.length) {
+    failures.push('no email provider configured — set RESEND_API_KEY, or EMAIL_HOST/EMAIL_USER/EMAIL_PASS');
+  }
+  lastEmailError = { message: failures.join(' | '), at: new Date().toISOString() };
+  console.error(
+    `[email] NOT SENT to ${to} — ${lastEmailError.message}. ` +
+    'If this host is a Render free web service, outbound SMTP (25/465/587) is blocked: use an HTTPS email API such as Resend.'
+  );
   return null;
 }
 

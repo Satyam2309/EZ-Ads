@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { dbState } from '../config/db.js';
 import { oauthMockMode } from '../config/env.js';
+import { emailStatus } from '../services/emailService.js';
 import authRouter from './auth.js';
 import profileRouter from './profiles.js';
 import campaignRouter from './campaigns.js';
@@ -17,6 +18,8 @@ router.get('/health', (req, res) => {
     service: 'ez-ads-api',
     db: ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState()] || 'unknown',
     oauthMode: oauthMockMode ? 'mock (no real Meta credentials configured)' : 'live',
+    // which transport the server can actually send mail with, plus the last failure
+    email: emailStatus(),
     time: new Date().toISOString()
   });
 });

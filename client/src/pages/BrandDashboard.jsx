@@ -23,9 +23,30 @@ function useOverview() {
   return { data, err };
 }
 
+/** Re-issue the verification link when the first email never arrived. */
+function useResendVerification(email) {
+  const [state, setState] = useState({ status: 'idle', message: '' });
+  async function resend() {
+    setState({ status: 'sending', message: '' });
+    try {
+      const r = await api.post('/auth/resend-verification');
+      setState({
+        status: 'sent',
+        message: r.data?.alreadyVerified
+          ? 'This email is already verified.'
+          : `Verification email sent to ${email} — check your inbox and spam folder.`
+      });
+    } catch (e) {
+      setState({ status: 'error', message: e.message || 'Could not send the verification email.' });
+    }
+  }
+  return { state, resend };
+}
+
 export default function BrandDashboard() {
   const { user } = useAuth();
   const { data, err } = useOverview();
+  const { state: resendState, resend } = useResendVerification(user?.email);
   if (!user) return null;
 
   const t = data?.totals || {};
@@ -56,8 +77,20 @@ export default function BrandDashboard() {
           <Button size="sm" variant="ghost" to="/settings"><Icon name="user" size={16} /> Profile settings</Button>
           {user.emailVerified
             ? <Badge tone="success">Email verified</Badge>
-            : <Badge tone="warning">Check your inbox to verify your email</Badge>}
+            : (
+              <>
+                <Badge tone="warning">Check your inbox to verify your email</Badge>
+                <Button size="sm" variant="ghost" onClick={resend} disabled={resendState.status === 'sending'}>
+                  {resendState.status === 'sending' ? 'Sending…' : 'Resend verification email'}
+                </Button>
+              </>
+            )}
         </div>
+        {resendState.message && (
+          <p className={`text-xs ${resendState.status === 'error' ? 'text-red-600' : 'text-emerald-700'}`}>
+            {resendState.message}
+          </p>
+        )}
       </DashboardHero>
 
       {err && (

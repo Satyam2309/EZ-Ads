@@ -9,7 +9,7 @@ import {
   registerBrandHandler, registerCreatorHandler, loginBrandHandler, loginCreatorHandler,
   loginAdminHandler, logoutHandler, meHandler,
   getAccountHandler, updateAccountHandler, changePasswordHandler,
-  verifyEmailHandler, requestPasswordResetHandler, resetPasswordHandler, devMailboxHandler,
+  verifyEmailHandler, resendVerificationHandler, requestPasswordResetHandler, resetPasswordHandler, devMailboxHandler,
   instagramStartHandler, instagramCallbackHandler, instagramMockCallbackHandler
 } from '../controllers/authController.js';
 import { asyncHandler } from '../utils/errors.js';
@@ -59,6 +59,8 @@ router.post('/account/password', requireAuth,
   asyncHandler(async (req, _res, next) => { req.body = parseBody(changePasswordSchema, req.body); next(); }),
   asyncHandler(changePasswordHandler));
 router.get('/verify-email', resetLimiter, asyncHandler(verifyEmailHandler));
+// re-send the verification link to the signed-in account (lost / never delivered email)
+router.post('/resend-verification', requireAuth, resetLimiter, asyncHandler(resendVerificationHandler));
 router.post('/password-reset-request', resetLimiter,
   asyncHandler(async (req, _res, next) => { req.body = parseBody(passwordResetRequestSchema, req.body); next(); }),
   asyncHandler(requestPasswordResetHandler));

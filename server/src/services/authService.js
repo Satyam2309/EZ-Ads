@@ -73,9 +73,9 @@ export async function registerBrand(input, req) {
 async function sendVerificationEmail(email, name, token, req) {
   const verifyUrl = `${linkOrigin(req)}/verify-email?token=${token}`;
   if (isEmailConfigured()) {
-    // Send branded HTML verification email
+    // Send branded HTML verification email; returns null when every transport failed
     const { html, text } = buildVerificationEmail(name, verifyUrl);
-    await sendMail({ to: email, subject: 'Verify your EZ Ads account', text, html });
+    return Boolean(await sendMail({ to: email, subject: 'Verify your EZ Ads account', text, html }));
   } else {
     // Dev fallback: never silently pretend email was sent. Log the link; in
     // tests the token is also returned so flows can complete deterministically.
@@ -87,6 +87,26 @@ async function sendVerificationEmail(email, name, token, req) {
       latestDevToken.set(email, token);
     }
   }
+  return true;
+}
+
+/**
+ * Re-issue a verification link for an account that is still unverified — the
+ * only recovery path when the first email is lost, filtered, or never sent.
+ */
+export async function resendVerificationEmail(user, req) {
+  if (user.emailVerified) return { alreadyVerified: true };
+  const token = randomToken();
+  await User.updateOne(
+    { _id: user._id },
+    { emailVerificationTokenHash: sha256(token) }
+  );
+  const sent = await sendVerificationEmail(user.email, user.displayName || 'there', token, req);
+  if (!sent) {
+    throw new AppError('We could not send the verification email right now. Please try again later.', 503, 'EMAIL_SEND_FAILED');
+  }
+  await audit('auth.verification_resent', user._id, { email: user.email }, req);
+  return { sent: true };
 }
 
 async function sendWelcomeEmail(email, name) {
@@ -96,7 +116,7 @@ async function sendWelcomeEmail(email, name) {
 }
 
 export function isEmailConfigured() {
-  return Boolean(env.EMAIL_HOST && env.EMAIL_USER && env.EMAIL_PASS);
+  return Boolean(env.RESEND_API_KEY) || Boolean(env.EMAIL_HOST && env.EMAIL_USER && env.EMAIL_PASS);
 }
 
 export async function verifyEmail(token) {

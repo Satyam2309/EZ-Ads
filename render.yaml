@@ -26,6 +26,10 @@ services:
         generateValue: true
       - key: OAUTH_MOCK_MODE
         value: "false"
+      # Render free web services block outbound SMTP (25/465/587), so HTTPS email
+      # APIs are the only senders that work here. Resend takes priority when set.
+      - key: RESEND_API_KEY
+        sync: false # Set in Render dashboard after verifying the sending domain
       - key: EMAIL_HOST
         value: smtpout.secureserver.net
       - key: EMAIL_PORT

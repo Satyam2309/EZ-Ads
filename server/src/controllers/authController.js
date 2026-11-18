@@ -1,6 +1,6 @@
 import {
   registerBrand, registerCreator, loginBrand, loginCreator, loginAdmin, verifyEmail, requestPasswordReset, resetPassword,
-  getOwnAccount, updateOwnAccount, changeOwnPassword
+  getOwnAccount, updateOwnAccount, changeOwnPassword, resendVerificationEmail
 } from '../services/authService.js';
 import {
   buildAuthorizeUrl, exchangeCodeForIdentity, mockIdentity, upsertInfluencerFromIdentity, oauthMode
@@ -109,6 +109,11 @@ export async function changePasswordHandler(req, res) {
 export async function verifyEmailHandler(req, res) {
   const user = await verifyEmail(req.query.token);
   res.json({ ok: true, data: { email: user.email, emailVerified: true } });
+}
+
+export async function resendVerificationHandler(req, res) {
+  const result = await resendVerificationEmail(req.user, req);
+  res.json({ ok: true, data: result });
 }
 
 export async function requestPasswordResetHandler(req, res) {

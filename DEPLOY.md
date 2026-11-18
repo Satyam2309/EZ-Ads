@@ -61,13 +61,23 @@ start** on the repo's dev defaults — confirmed:
 | `META_APP_ID` / `META_APP_SECRET` | Instagram app id + secret |
 | `META_REDIRECT_URI` | `https://yourdomain.com/api/auth/instagram/callback` |
 | `OAUTH_MOCK_MODE` | `false` |
-| `EMAIL_HOST` | `smtpout.secureserver.net` |
+| `RESEND_API_KEY` | from resend.com — **required on Render's free plan** (see below) |
+| `EMAIL_HOST` | `smtpout.secureserver.net` (SMTP fallback; blocked on Render free) |
 | `EMAIL_PORT` | `465` (falls back to `587` if 465 is blocked) |
 | `EMAIL_USER` / `EMAIL_PASS` | your GoDaddy mailbox + its password |
-| `EMAIL_FROM` | `EZ Ads <you@yourdomain.com>` |
+| `EMAIL_FROM` | `EZ Ads <you@yourdomain.com>` (must be a verified sender domain) |
 | `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | only if you want image uploads |
 
 Do **not** set `PORT`; the platform injects it. Never commit or zip a `.env`.
+
+**Email on Render's free plan:** free web services cannot open outbound SMTP
+connections to ports 25, 465 or 587 (Render changelog, 26 September 2025), so
+GoDaddy SMTP times out in production even though it works on your laptop —
+verification and password-reset mails are simply never sent. Fix: create a
+Resend API key, verify `yourdomain.com` there (add the DNS records they show at
+GoDaddy — this also fixes Gmail spam filtering), set `RESEND_API_KEY` in the
+Render dashboard, and redeploy. `GET /api/health` reports `email.provider`
+(`resend` / `smtp` / `none`) and the last send error, so you can confirm it.
 
 ### 5. Build, pack, deploy
 
