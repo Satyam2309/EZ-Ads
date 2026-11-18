@@ -112,7 +112,7 @@ export async function verifyEmailHandler(req, res) {
 }
 
 export async function requestPasswordResetHandler(req, res) {
-  await requestPasswordReset(req.body.email);
+  await requestPasswordReset(req.body.email, req);
   // identical response whether or not the account exists (no enumeration)
   res.json({ ok: true, data: { message: 'If that email is registered, a reset link has been sent.' } });
 }

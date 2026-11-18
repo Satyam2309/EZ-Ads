@@ -3,9 +3,30 @@ import { User, BrandProfile, InfluencerProfile, AuditLog } from '../models/index
 import { AppError, badRequest, unauthorized, notFound } from '../utils/errors.js';
 import { sha256, randomToken } from '../utils/tokens.js';
 import { sendMail, buildVerificationEmail, buildWelcomeEmail, buildPasswordResetEmail } from './emailService.js';
-import { env, isTest, isProd } from '../config/env.js';
+import { env, isTest, isProd, clientOrigins } from '../config/env.js';
 
 const BCRYPT_ROUNDS = 12;
+
+/**
+ * Base URL for links inside emails. Production always uses CLIENT_ORIGIN; in
+ * development the request tells us which frontend the person is really using,
+ * so a link mailed while testing on localhost opens localhost instead of the
+ * live site (where the freshly created account does not exist).
+ */
+function linkOrigin(req) {
+  if (!isProd) {
+    const header = req?.headers?.origin || req?.headers?.referer;
+    if (header) {
+      try {
+        const origin = new URL(header).origin;
+        if (clientOrigins.includes(origin)) return origin;
+      } catch {
+        // malformed header — fall back to the configured origin
+      }
+    }
+  }
+  return env.CLIENT_ORIGIN;
+}
 const VERIFY_TTL_MS = 24 * 3600 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
 
@@ -41,7 +62,7 @@ export async function registerBrand(input, req) {
     { emailVerificationTokenHash: sha256(verifyToken) }
   );
   try {
-    await sendVerificationEmail(email, input.companyName, verifyToken);
+    await sendVerificationEmail(email, input.companyName, verifyToken, req);
   } catch (err) {
     console.error('[email] non-fatal verification send error:', err.message);
   }
@@ -49,8 +70,8 @@ export async function registerBrand(input, req) {
   return user;
 }
 
-async function sendVerificationEmail(email, name, token) {
-  const verifyUrl = `${env.CLIENT_ORIGIN}/verify-email?token=${token}`;
+async function sendVerificationEmail(email, name, token, req) {
+  const verifyUrl = `${linkOrigin(req)}/verify-email?token=${token}`;
   if (isEmailConfigured()) {
     // Send branded HTML verification email
     const { html, text } = buildVerificationEmail(name, verifyUrl);
@@ -118,7 +139,7 @@ export async function registerCreator(input, req) {
     { emailVerificationTokenHash: sha256(verifyToken) }
   );
   try {
-    await sendVerificationEmail(email, input.displayName, verifyToken);
+    await sendVerificationEmail(email, input.displayName, verifyToken, req);
   } catch (err) {
     console.error('[email] non-fatal verification send error:', err.message);
   }
@@ -176,7 +197,7 @@ export async function loginAdmin(email, password, req) {
   return user;
 }
 
-export async function requestPasswordReset(email) {
+export async function requestPasswordReset(email, req) {
   const user = await User.findOne({ email: email.toLowerCase().trim(), role: { $in: ['brand', 'influencer'] } });
   if (!user) return; // no enumeration: identical response either way
   const token = randomToken();
@@ -184,7 +205,7 @@ export async function requestPasswordReset(email) {
     { _id: user._id },
     { passwordResetTokenHash: sha256(token), passwordResetExpiresAt: new Date(Date.now() + RESET_TTL_MS) }
   );
-  const resetUrl = `${env.CLIENT_ORIGIN}/reset-password?token=${token}`;
+  const resetUrl = `${linkOrigin(req)}/reset-password?token=${token}`;
   if (isEmailConfigured()) {
     // Send branded HTML password reset email
     const { html, text } = buildPasswordResetEmail(resetUrl);
