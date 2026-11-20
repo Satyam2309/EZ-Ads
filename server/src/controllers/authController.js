@@ -191,7 +191,6 @@ export async function instagramMockCallbackHandler(req, res) {
         }
       }
     );
-    );
     return res.json({ ok: true, data: { connected: true, username: identity.username } });
   }
 
