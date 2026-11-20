@@ -65,27 +65,27 @@ export default function Shortlists() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[300px_1fr]">
         {/* List rail */}
         <aside className="space-y-4">
-          <form onSubmit={create} className="flex gap-2 rounded-xl border border-neutral-200 bg-white p-3">
+          <form onSubmit={create} className="flex gap-2 rounded-xl border border-(--color-line) bg-(--color-surface) p-3">
             <input name="name" required maxLength={80} placeholder="New shortlist name"
-              className="h-9 w-full rounded-lg border border-neutral-200 px-3 text-sm" />
+              className="h-9 w-full rounded-lg border border-(--color-line) bg-(--color-canvas) text-(--color-ink) px-3 text-sm focus:border-brand-500 focus:outline-none" />
             <Button size="sm">Create</Button>
           </form>
           {lists === null ? (
-            <p className="text-sm text-neutral-500">Loading…</p>
+            <p className="text-sm text-(--color-ink-soft)">Loading…</p>
           ) : lists.length === 0 ? (
-            <p className="rounded-xl border border-neutral-200 bg-white p-4 text-sm text-neutral-500">
+            <p className="rounded-xl border border-(--color-line) bg-(--color-surface) p-4 text-sm text-(--color-ink-soft)">
               No shortlists yet. Create one above, or save creators straight from discovery.
             </p>
           ) : (
-            <ul className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+            <ul className="overflow-hidden rounded-xl border border-(--color-line) bg-(--color-surface)">
               {lists.map((l) => (
-                <li key={l._id} className="flex items-center justify-between border-t border-neutral-100 first:border-0">
+                <li key={l._id} className="flex items-center justify-between border-t border-(--color-line-soft) first:border-0">
                   <button onClick={() => setSelectedId(l._id)}
-                    className={`min-w-0 flex-1 px-4 py-3 text-left text-sm hover:bg-brand-50 ${selectedId === l._id ? 'bg-brand-50 font-semibold' : ''}`}>
-                    <span className="block truncate">{l.name}</span>
-                    <span className="text-xs text-neutral-400">{l.items?.length || 0} creator{l.items?.length === 1 ? '' : 's'}</span>
+                    className={`min-w-0 flex-1 px-4 py-3 text-left text-sm hover:bg-brand-50 dark:hover:bg-brand-950/40 ${selectedId === l._id ? 'bg-brand-50 dark:bg-brand-950/60 font-semibold' : ''}`}>
+                    <span className="block truncate text-(--color-ink)">{l.name}</span>
+                    <span className="text-xs text-(--color-ink-soft)">{l.items?.length || 0} creator{l.items?.length === 1 ? '' : 's'}</span>
                   </button>
-                  <button aria-label={`Delete ${l.name}`} title="Delete list" className="px-3 text-neutral-300 hover:text-red-600"
+                  <button aria-label={`Delete ${l.name}`} title="Delete list" className="px-3 text-(--color-ink-soft) hover:text-red-500"
                     onClick={() => remove(l._id)}>🗑</button>
                 </li>
               ))}

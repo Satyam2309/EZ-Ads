@@ -62,7 +62,7 @@ export default function Notifications() {
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setUnreadOnly((v) => !v)}
-            className={`rounded-full border px-3 py-1.5 text-sm ${unreadOnly ? 'border-brand-600 bg-brand-600 text-white' : 'border-neutral-200 bg-white text-neutral-600'}`}>
+            className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${unreadOnly ? 'border-brand-600 bg-brand-600 text-white' : 'border-(--color-line) bg-(--color-surface) text-(--color-ink-soft) hover:border-brand-300'}`}>
             Unread only
           </button>
           <Button size="sm" variant="secondary" onClick={markAll}>Mark all read</Button>

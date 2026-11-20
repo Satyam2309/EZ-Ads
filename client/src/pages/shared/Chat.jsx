@@ -120,18 +120,18 @@ export default function Chat() {
               No conversations yet. Opens automatically once you have an application, invitation or agreement with the other side.
             </Card>
           ) : (
-            <ul className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+            <ul className="overflow-hidden rounded-xl border border-(--color-line) bg-(--color-surface)">
               {convs.map((c) => (
-                <li key={c._id} className="border-t border-neutral-100 first:border-0">
+                <li key={c._id} className="border-t border-(--color-line-soft) first:border-0">
                   <button
                     onClick={() => setParams((p) => { p.set('conv', String(c._id)); return p; })}
-                    className={`block w-full px-4 py-3 text-left ${String(c._id) === String(activeId) ? 'bg-brand-50' : 'hover:bg-brand-50/50'}`}>
-                    <span className="block truncate text-sm font-medium">
+                    className={`block w-full px-4 py-3 text-left transition-colors ${String(c._id) === String(activeId) ? 'bg-brand-50 dark:bg-brand-950/60 font-semibold' : 'hover:bg-brand-50/50 dark:hover:bg-brand-950/40'}`}>
+                    <span className="block truncate text-sm font-medium text-(--color-ink)">
                       {c.other?.displayName || 'Campaign chat'}
                     </span>
-                    <span className="block truncate text-xs text-neutral-400">{c.campaign?.title}</span>
+                    <span className="block truncate text-xs text-(--color-ink-soft)">{c.campaign?.title}</span>
                     {c.lastMessagePreview && (
-                      <span className="mt-0.5 block truncate text-xs text-neutral-500">{c.lastMessagePreview}</span>
+                      <span className="mt-0.5 block truncate text-xs text-(--color-ink-soft)">{c.lastMessagePreview}</span>
                     )}
                   </button>
                 </li>

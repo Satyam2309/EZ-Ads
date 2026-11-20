@@ -51,14 +51,14 @@ export default function Discovery() {
   const activeFilterCount = Object.entries(filters).filter(([k, v]) =>
     !['page', 'sort', 'q'].includes(k) && v !== '').length;
 
-  const inputCls = 'h-9 w-full rounded-lg border border-neutral-200 px-3 text-sm';
+  const inputCls = 'h-9 w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors';
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Find creators</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-2xl font-bold tracking-tight text-(--color-ink)">Find creators</h1>
+          <p className="mt-1 text-sm text-(--color-ink-soft)">
             Every number is labeled by where it came from: <Badge tone="success">API</Badge> comes from Meta's
             Instagram API, <Badge tone="neutral">Self-reported</Badge> is what the creator entered.
           </p>
@@ -76,25 +76,28 @@ export default function Discovery() {
 
         <div>
           {err && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{err}</div>
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">{err}</div>
           )}
           {loading && !result ? (
-            <p className="text-sm text-neutral-500">Searching…</p>
+            <p className="text-sm text-(--color-ink-soft)">Searching…</p>
           ) : result ? (
             <>
-              <div className="flex items-center justify-between text-sm text-neutral-500">
+              <div className="flex items-center justify-between text-sm text-(--color-ink-soft)">
                 <span>{result.total} creator{result.total === 1 ? '' : 's'} found</span>
                 <label className="flex items-center gap-2">
                   Sort
-                  <select className="h-9 rounded-lg border border-neutral-200 px-2 text-sm" value={filters.sort}
-                    onChange={(e) => set({ sort: e.target.value, page: 1 })}>
-                    {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  <select
+                    className="h-9 rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-2 text-sm focus:border-brand-500 focus:outline-none"
+                    value={filters.sort}
+                    onChange={(e) => set({ sort: e.target.value, page: 1 })}
+                  >
+                    {SORTS.map(([v, l]) => <option key={v} value={v} className="bg-(--color-surface) text-(--color-ink)">{l}</option>)}
                   </select>
                 </label>
               </div>
 
               {result.items.length === 0 ? (
-                <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-10 text-center text-sm text-neutral-500">
+                <div className="mt-4 rounded-xl border border-(--color-line) bg-(--color-surface) p-10 text-center text-sm text-(--color-ink-soft)">
                   No creators match these filters yet. Try widening the range or clearing filters.
                 </div>
               ) : (
@@ -106,7 +109,7 @@ export default function Discovery() {
               <div className="mt-6 flex items-center justify-center gap-3 text-sm">
                 <Button size="sm" variant="secondary" disabled={filters.page <= 1}
                   onClick={() => set({ page: filters.page - 1 })}>← Prev</Button>
-                <span className="text-neutral-500">Page {result.page} of {result.pages}</span>
+                <span className="text-(--color-ink-soft)">Page {result.page} of {result.pages}</span>
                 <Button size="sm" variant="secondary" disabled={result.page >= result.pages}
                   onClick={() => set({ page: filters.page + 1 })}>Next →</Button>
               </div>
@@ -123,75 +126,75 @@ export default function Discovery() {
 function FilterRail({ filters, set, draft, setDraft, clear, activeFilterCount, inputCls }) {
   return (
     <aside className="space-y-3">
-      <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="rounded-xl border border-(--color-line) bg-(--color-surface) p-4 shadow-xs">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold">Filters</p>
+          <p className="text-sm font-semibold text-(--color-ink)">Filters</p>
           {activeFilterCount > 0 && (
-            <button onClick={clear} className="text-xs font-medium text-brand-600 hover:text-brand-700">
+            <button onClick={clear} className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">
               Clear all ({activeFilterCount})
             </button>
           )}
         </div>
 
         <label className="mt-3 block space-y-1">
-          <span className="text-xs font-semibold text-neutral-500">Search keywords</span>
+          <span className="text-xs font-semibold text-(--color-ink-soft)">Search keywords</span>
           <input className={inputCls} placeholder="name, niche, bio…" value={draft.q}
             onChange={(e) => setDraft({ q: e.target.value })} />
         </label>
 
         <label className="mt-3 block space-y-1">
-          <span className="text-xs font-semibold text-neutral-500">Niche</span>
+          <span className="text-xs font-semibold text-(--color-ink-soft)">Niche</span>
           <select className={inputCls} value={filters.niche} onChange={(e) => set({ niche: e.target.value, page: 1 })}>
-            <option value="">Any niche</option>
-            {NICHES.map((n) => <option key={n} value={n}>{n}</option>)}
+            <option value="" className="bg-(--color-surface) text-(--color-ink)">Any niche</option>
+            {NICHES.map((n) => <option key={n} value={n} className="bg-(--color-surface) text-(--color-ink)">{n}</option>)}
           </select>
         </label>
 
-        <p className="mt-3 text-xs font-semibold text-neutral-500">Followers</p>
+        <p className="mt-3 text-xs font-semibold text-(--color-ink-soft)">Followers</p>
         <div className="flex items-center gap-2">
           <input className={inputCls + ' text-xs'} inputMode="numeric" placeholder="min" value={filters.minFollowers}
             onChange={(e) => set({ minFollowers: e.target.value, page: 1 })} />
-          <span className="text-neutral-400">–</span>
+          <span className="text-(--color-ink-soft)">–</span>
           <input className={inputCls + ' text-xs'} inputMode="numeric" placeholder="max" value={filters.maxFollowers}
             onChange={(e) => set({ maxFollowers: e.target.value, page: 1 })} />
         </div>
 
         <label className="mt-3 block space-y-1">
-          <span className="text-xs font-semibold text-neutral-500">Engagement rate ≥ (%)</span>
+          <span className="text-xs font-semibold text-(--color-ink-soft)">Engagement rate ≥ (%)</span>
           <input className={inputCls + ' text-xs'} inputMode="decimal" placeholder="e.g. 3" value={filters.minEngagement}
             onChange={(e) => set({ minEngagement: e.target.value, page: 1 })} />
         </label>
 
-        <p className="mt-3 text-xs font-semibold text-neutral-500">Budget (₹)</p>
+        <p className="mt-3 text-xs font-semibold text-(--color-ink-soft)">Budget (₹)</p>
         <div className="flex items-center gap-2">
           <input className={inputCls + ' text-xs'} inputMode="numeric" placeholder="min" value={filters.minBudget}
             onChange={(e) => set({ minBudget: e.target.value, page: 1 })} />
-          <span className="text-neutral-400">–</span>
+          <span className="text-(--color-ink-soft)">–</span>
           <input className={inputCls + ' text-xs'} inputMode="numeric" placeholder="max" value={filters.maxBudget}
             onChange={(e) => set({ maxBudget: e.target.value, page: 1 })} />
         </div>
 
         <div className="mt-3 grid grid-cols-2 gap-2">
           <label className="block space-y-1">
-            <span className="text-xs font-semibold text-neutral-500">City</span>
+            <span className="text-xs font-semibold text-(--color-ink-soft)">City</span>
             <input className={inputCls + ' text-xs'} placeholder="Mumbai" value={filters.city}
               onChange={(e) => set({ city: e.target.value, page: 1 })} />
           </label>
           <label className="block space-y-1">
-            <span className="text-xs font-semibold text-neutral-500">Country</span>
+            <span className="text-xs font-semibold text-(--color-ink-soft)">Country</span>
             <input className={inputCls + ' text-xs'} placeholder="India" value={filters.country}
               onChange={(e) => set({ country: e.target.value, page: 1 })} />
           </label>
         </div>
 
         <label className="mt-3 block space-y-1">
-          <span className="text-xs font-semibold text-neutral-500">Availability</span>
+          <span className="text-xs font-semibold text-(--color-ink-soft)">Availability</span>
           <select className={inputCls} value={filters.availability}
             onChange={(e) => set({ availability: e.target.value, page: 1 })}>
-            <option value="">Any</option>
-            <option value="available">Available</option>
-            <option value="limited">Limited slots</option>
-            <option value="booked">Booked</option>
+            <option value="" className="bg-(--color-surface) text-(--color-ink)">Any</option>
+            <option value="available" className="bg-(--color-surface) text-(--color-ink)">Available</option>
+            <option value="limited" className="bg-(--color-surface) text-(--color-ink)">Limited slots</option>
+            <option value="booked" className="bg-(--color-surface) text-(--color-ink)">Booked</option>
           </select>
         </label>
       </div>

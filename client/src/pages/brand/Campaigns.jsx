@@ -133,7 +133,7 @@ export default function Campaigns() {
       <div className="mt-6 flex flex-wrap gap-2">
         {['', 'draft', 'published', 'paused', 'completed', 'archived'].map((s) => (
           <button key={s || 'all'} onClick={() => setStatus(s)}
-            className={`rounded-full border px-3 py-1.5 text-sm ${status === s ? 'border-brand-600 bg-brand-600 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-brand-300'}`}>
+            className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${status === s ? 'border-brand-600 bg-brand-600 text-white' : 'border-(--color-line) bg-(--color-surface) text-(--color-ink-soft) hover:border-brand-300'}`}>
             {s || 'All'}
           </button>
         ))}

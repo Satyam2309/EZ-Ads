@@ -35,9 +35,8 @@ export default function BrandLogo({ className = '', size = 'md' }) {
         className={`${shared} dark:hidden`}
       />
       <img
-        src="/brand-lockup-plate.png"
-        alt=""
-        aria-hidden="true"
+        src="/brand-lockup-dark.png"
+        alt="EZ Ads"
         width="560"
         height="187"
         draggable="false"
