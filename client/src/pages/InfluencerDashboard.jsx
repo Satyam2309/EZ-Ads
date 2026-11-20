@@ -101,50 +101,21 @@ export default function InfluencerDashboard() {
     }
   }
 
-  // Fallback demo metrics if real Graph API data is still syncing
-  const followersCount = insights?.followersCount ?? (isConnected ? 125430 : 0);
-  const engagementRate = insights?.engagementRate ?? (isConnected ? 4.82 : 0);
-  const totalReach = insights?.totalReach ?? (isConnected ? 1240000 : 0);
-  const avgReach = insights?.avgReach ?? (isConnected ? 41330 : 0);
-  const totalImpressions = insights?.totalImpressions ?? (isConnected ? 2870000 : 0);
-  const avgImpressions = insights?.avgImpressions ?? (isConnected ? 95660 : 0);
-  const profileViews = insights?.profileViews ?? (isConnected ? 86420 : 0);
-  const websiteTaps = insights?.websiteTaps ?? (isConnected ? 7210 : 0);
-  const newFollows = insights?.newFollows ?? (isConnected ? 3410 : 0);
+  // Real metrics from Instagram Graph API (no fake demo values)
+  const followersCount = insights?.followersCount ?? user?.instagram?.followersCount ?? 0;
+  const engagementRate = insights?.engagementRate ?? 0;
+  const totalReach = insights?.totalReach ?? 0;
+  const avgReach = insights?.avgReach ?? (totalReach ? Math.round(totalReach / 30) : 0);
+  const totalImpressions = insights?.totalImpressions ?? 0;
+  const avgImpressions = insights?.avgImpressions ?? (totalImpressions ? Math.round(totalImpressions / 30) : 0);
+  const profileViews = insights?.profileViews ?? 0;
+  const websiteTaps = insights?.websiteTaps ?? 0;
+  const newFollows = insights?.newFollows ?? 0;
 
-  const followersTrend = insights?.followersTrend?.length
-    ? insights.followersTrend
-    : [
-        { date: 'Oct 16', value: 122020 },
-        { date: 'Oct 20', value: 122500 },
-        { date: 'Oct 24', value: 123100 },
-        { date: 'Oct 28', value: 123800 },
-        { date: 'Nov 1', value: 124200 },
-        { date: 'Nov 5', value: 124700 },
-        { date: 'Nov 9', value: 125100 },
-        { date: 'Nov 14', value: 125430 }
-      ];
-
-  const audienceCountry = insights?.audienceCountry?.length
-    ? insights.audienceCountry
-    : [
-        { country: 'India', pct: 72.4 },
-        { country: 'United States', pct: 11.2 },
-        { country: 'United Kingdom', pct: 5.8 },
-        { country: 'Others', pct: 10.6 }
-      ];
-
-  const audienceAge = insights?.audienceAge?.length
-    ? insights.audienceAge
-    : [
-        { range: '13–17', pct: 4.1 },
-        { range: '18–24', pct: 47.8 },
-        { range: '25–34', pct: 35.2 },
-        { range: '35–44', pct: 9.4 },
-        { range: '45+', pct: 3.5 }
-      ];
-
-  const audienceGender = insights?.audienceGender || { M: 62.1, F: 37.5, U: 0.4 };
+  const followersTrend = insights?.followersTrend?.filter((d) => d && d.value != null) || [];
+  const audienceCountry = insights?.audienceCountry?.filter((c) => c && c.pct > 0) || [];
+  const audienceAge = insights?.audienceAge?.filter((a) => a && a.pct > 0) || [];
+  const audienceGender = (insights?.audienceGender && (insights.audienceGender.M || insights.audienceGender.F)) ? insights.audienceGender : null;
 
   const syncedDateStr = insights?.syncedAt
     ? new Date(insights.syncedAt).toLocaleString('en-IN', {
@@ -154,7 +125,9 @@ export default function InfluencerDashboard() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    : '14 Nov 2026, 10:24 AM';
+    : isConnected
+    ? 'Awaiting first sync'
+    : 'Not connected';
 
   // Area Chart Calculations
   const chartWidth = 560;
@@ -163,8 +136,8 @@ export default function InfluencerDashboard() {
   const padTop = 10;
   const usableH = chartHeight - padBottom - padTop;
   const vals = followersTrend.map((d) => d.value);
-  const minVal = Math.min(...vals);
-  const maxVal = Math.max(...vals);
+  const minVal = vals.length ? Math.min(...vals) : 0;
+  const maxVal = vals.length ? Math.max(...vals) : 0;
   const valSpan = maxVal - minVal || 1;
 
   const points = followersTrend.map((d, i) => {
@@ -284,8 +257,8 @@ export default function InfluencerDashboard() {
                       <span className="text-pink-500">📸</span> Followers
                     </div>
                     <div className="mt-1 text-xl font-extrabold">{fmt(followersCount)}</div>
-                    <div className="mt-0.5 text-[11px] font-semibold text-emerald-600">
-                      ↑ +2.8% (7 days)
+                    <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
+                      {isConnected ? 'Instagram API' : 'Self-reported'}
                     </div>
                   </div>
 
@@ -294,8 +267,8 @@ export default function InfluencerDashboard() {
                       <span className="text-brand-500">👥</span> Engagement
                     </div>
                     <div className="mt-1 text-xl font-extrabold">{fmtPct(engagementRate)}</div>
-                    <div className="mt-0.5 text-[11px] font-semibold text-emerald-600">
-                      ↑ +0.36%
+                    <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
+                      {engagementRate > 0 ? 'Calculated' : '—'}
                     </div>
                   </div>
 
@@ -303,9 +276,9 @@ export default function InfluencerDashboard() {
                     <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
                       <span className="text-purple-500">((•))</span> Avg. Reach
                     </div>
-                    <div className="mt-1 text-xl font-extrabold">{fmt(totalReach || avgReach * 30)}</div>
-                    <div className="mt-0.5 text-[11px] font-semibold text-emerald-600">
-                      ↑ +6.7%
+                    <div className="mt-1 text-xl font-extrabold">{totalReach ? fmt(totalReach) : '—'}</div>
+                    <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
+                      {totalReach > 0 ? 'Last 30 days' : 'Requires API'}
                     </div>
                   </div>
 
@@ -313,9 +286,9 @@ export default function InfluencerDashboard() {
                     <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
                       <span className="text-orange-500">👁️</span> Avg. Impr.
                     </div>
-                    <div className="mt-1 text-xl font-extrabold">{fmt(totalImpressions)}</div>
-                    <div className="mt-0.5 text-[11px] font-semibold text-emerald-600">
-                      ↑ +5.9%
+                    <div className="mt-1 text-xl font-extrabold">{totalImpressions ? fmt(totalImpressions) : '—'}</div>
+                    <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
+                      {totalImpressions > 0 ? 'Last 30 days' : 'Requires API'}
                     </div>
                   </div>
                 </div>
@@ -325,68 +298,68 @@ export default function InfluencerDashboard() {
               <div className="flex flex-col justify-between rounded-3xl border border-(--color-line) bg-(--color-surface) p-6 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-(--color-ink)">Follower Growth</h3>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 rounded-lg border border-(--color-line) bg-(--color-canvas) px-2.5 py-1 text-xs font-semibold text-(--color-ink-soft)"
-                  >
-                    Last 30 Days ▾
-                  </button>
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-(--color-line) bg-(--color-canvas) px-2.5 py-1 text-xs font-semibold text-(--color-ink-soft)">
+                    Last 30 Days
+                  </span>
                 </div>
 
                 <div className="mt-2">
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-extrabold">{fmt(followersCount)}</span>
-                    <span className="text-xs font-semibold text-emerald-600">
-                      ↑ +3,410 (2.8%)
+                    <span className="text-xs font-semibold text-(--color-ink-soft)">
+                      {newFollows > 0 ? `+${fmt(newFollows)} new follows` : 'Current count'}
                     </span>
                   </div>
                 </div>
 
-                {/* Chart SVG */}
+                {/* Chart SVG or clean message */}
                 <div className="mt-4 w-full">
-                  <svg
-                    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                    className="h-28 w-full overflow-visible"
-                    preserveAspectRatio="none"
-                  >
-                    <defs>
-                      <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
-                    {/* Area fill */}
-                    {areaPathStr && <path d={areaPathStr} fill="url(#growthGrad)" />}
-                    {/* Line stroke */}
-                    {polylineStr && (
-                      <polyline
-                        fill="none"
-                        stroke="#3b82f6"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        points={polylineStr}
-                      />
-                    )}
-                    {/* Points */}
-                    {points.map((p, idx) => (
-                      <g key={idx}>
-                        <circle cx={p.x} cy={p.y} r="3" fill="#3b82f6" />
-                        {idx % 2 === 0 && (
-                          <text
-                            x={p.x}
-                            y={chartHeight - 4}
-                            textAnchor="middle"
-                            fontSize="9"
-                            fill="currentColor"
-                            className="text-(--color-ink-soft) opacity-70"
-                          >
-                            {p.date}
-                          </text>
-                        )}
-                      </g>
-                    ))}
-                  </svg>
+                  {followersTrend.length > 1 ? (
+                    <svg
+                      viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                      className="h-28 w-full overflow-visible"
+                      preserveAspectRatio="none"
+                    >
+                      <defs>
+                        <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      {areaPathStr && <path d={areaPathStr} fill="url(#growthGrad)" />}
+                      {polylineStr && (
+                        <polyline
+                          fill="none"
+                          stroke="#3b82f6"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          points={polylineStr}
+                        />
+                      )}
+                      {points.map((p, idx) => (
+                        <g key={idx}>
+                          <circle cx={p.x} cy={p.y} r="3" fill="#3b82f6" />
+                          {idx % 2 === 0 && (
+                            <text
+                              x={p.x}
+                              y={chartHeight - 4}
+                              textAnchor="middle"
+                              fontSize="9"
+                              fill="currentColor"
+                              className="text-(--color-ink-soft) opacity-70"
+                            >
+                              {p.date}
+                            </text>
+                          )}
+                        </g>
+                      ))}
+                    </svg>
+                  ) : (
+                    <div className="flex h-28 items-center justify-center text-center text-xs text-(--color-ink-soft)">
+                      {isConnected ? 'Follower growth chart will populate after your daily syncs.' : 'Connect Instagram above to begin tracking growth.'}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -436,7 +409,7 @@ export default function InfluencerDashboard() {
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                       <span className="text-sm">📸</span>
-                      <span className="text-sm font-extrabold">{fmt(totalReach || 1240000)}</span>
+                      <span className="text-sm font-extrabold">{totalReach ? fmt(totalReach) : '0'}</span>
                       <span className="text-[10px] text-(--color-ink-soft)">Total Reach</span>
                     </div>
                   </div>
@@ -497,91 +470,110 @@ export default function InfluencerDashboard() {
 
                 <div className="mt-5 space-y-3.5">
                   {demographicTab === 'country' &&
-                    audienceCountry.map((item) => (
-                      <div key={item.country} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-medium">
-                          <span className="flex items-center gap-2">
-                            <span>{FLAGS[item.country] || '🌐'}</span>
-                            {item.country}
-                          </span>
-                          <span className="font-bold">{item.pct}%</span>
+                    (audienceCountry.length > 0 ? (
+                      audienceCountry.map((item) => (
+                        <div key={item.country} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs font-medium">
+                            <span className="flex items-center gap-2">
+                              <span>{FLAGS[item.country] || '🌐'}</span>
+                              {item.country}
+                            </span>
+                            <span className="font-bold">{item.pct}%</span>
+                          </div>
+                          <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-elevated)">
+                            <div
+                              className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                              style={{ width: `${item.pct}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-elevated)">
-                          <div
-                            className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                            style={{ width: `${item.pct}%` }}
-                          />
-                        </div>
+                      ))
+                    ) : (
+                      <div className="py-6 text-center text-xs text-(--color-ink-soft)">
+                        No country demographic data synced yet.
                       </div>
                     ))}
 
                   {demographicTab === 'age' &&
-                    audienceAge.map((item) => (
-                      <div key={item.range} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-medium">
-                          <span className="text-(--color-ink-soft)">Age {item.range}</span>
-                          <span className="font-bold">{item.pct}%</span>
+                    (audienceAge.length > 0 ? (
+                      audienceAge.map((item) => (
+                        <div key={item.range} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs font-medium">
+                            <span className="text-(--color-ink-soft)">Age {item.range}</span>
+                            <span className="font-bold">{item.pct}%</span>
+                          </div>
+                          <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-elevated)">
+                            <div
+                              className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                              style={{ width: `${item.pct}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-elevated)">
-                          <div
-                            className="h-full rounded-full bg-indigo-600 transition-all duration-500"
-                            style={{ width: `${item.pct}%` }}
-                          />
-                        </div>
+                      ))
+                    ) : (
+                      <div className="py-6 text-center text-xs text-(--color-ink-soft)">
+                        No age demographic data synced yet.
                       </div>
                     ))}
 
-                  {demographicTab === 'gender' && (
-                    <div className="space-y-4 py-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm">👨</span>
-                        <div className="flex-1">
-                          <div className="flex justify-between text-xs font-medium">
-                            <span>Male</span>
-                            <span className="font-bold">{audienceGender.M}%</span>
-                          </div>
-                          <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
-                            <div
-                              className="h-full rounded-full bg-blue-500"
-                              style={{ width: `${audienceGender.M}%` }}
-                            />
+                  {demographicTab === 'gender' &&
+                    (audienceGender ? (
+                      <div className="space-y-4 py-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm">👨</span>
+                          <div className="flex-1">
+                            <div className="flex justify-between text-xs font-medium">
+                              <span>Male</span>
+                              <span className="font-bold">{audienceGender.M || 0}%</span>
+                            </div>
+                            <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
+                              <div
+                                className="h-full rounded-full bg-blue-500"
+                                style={{ width: `${audienceGender.M || 0}%` }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm">👩</span>
-                        <div className="flex-1">
-                          <div className="flex justify-between text-xs font-medium">
-                            <span>Female</span>
-                            <span className="font-bold">{audienceGender.F}%</span>
-                          </div>
-                          <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
-                            <div
-                              className="h-full rounded-full bg-pink-500"
-                              style={{ width: `${audienceGender.F}%` }}
-                            />
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm">👩</span>
+                          <div className="flex-1">
+                            <div className="flex justify-between text-xs font-medium">
+                              <span>Female</span>
+                              <span className="font-bold">{audienceGender.F || 0}%</span>
+                            </div>
+                            <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
+                              <div
+                                className="h-full rounded-full bg-pink-500"
+                                style={{ width: `${audienceGender.F || 0}%` }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm">🧑</span>
-                        <div className="flex-1">
-                          <div className="flex justify-between text-xs font-medium">
-                            <span>Other</span>
-                            <span className="font-bold">{audienceGender.U}%</span>
+                        {audienceGender.U > 0 && (
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm">🧑</span>
+                            <div className="flex-1">
+                              <div className="flex justify-between text-xs font-medium">
+                                <span>Other</span>
+                                <span className="font-bold">{audienceGender.U}%</span>
+                              </div>
+                              <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
+                                <div
+                                  className="h-full rounded-full bg-purple-500"
+                                  style={{ width: `${audienceGender.U}%` }}
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
-                            <div
-                              className="h-full rounded-full bg-purple-500"
-                              style={{ width: `${audienceGender.U}%` }}
-                            />
-                          </div>
-                        </div>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="py-6 text-center text-xs text-(--color-ink-soft)">
+                        No gender demographic data synced yet.
+                      </div>
+                    ))}
                 </div>
               </div>
 
@@ -590,17 +582,31 @@ export default function InfluencerDashboard() {
                 <div>
                   <h3 className="font-bold text-(--color-ink)">Creator Status</h3>
 
-                  <div className="mt-4 rounded-2xl border border-emerald-200/80 bg-emerald-50/70 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
-                    <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-xs text-white">
-                        ✓
-                      </span>
-                      Verified Creator
+                  {isConnected ? (
+                    <div className="mt-4 rounded-2xl border border-emerald-200/80 bg-emerald-50/70 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                      <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-xs text-white">
+                          ✓
+                        </span>
+                        Verified Creator
+                      </div>
+                      <p className="mt-1 text-xs text-emerald-700/80 dark:text-emerald-400">
+                        Real data from Instagram Graph API
+                      </p>
                     </div>
-                    <p className="mt-1 text-xs text-emerald-700/80 dark:text-emerald-400">
-                      Real data from Instagram Graph API
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="mt-4 rounded-2xl border border-(--color-line) bg-(--color-canvas) p-4">
+                      <div className="flex items-center gap-2 font-bold text-(--color-ink)">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-400 text-xs text-white">
+                          !
+                        </span>
+                        Unlinked Profile
+                      </div>
+                      <p className="mt-1 text-xs text-(--color-ink-soft)">
+                        Connect your Instagram account to verify your metrics.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="mt-5 space-y-2 text-xs text-(--color-ink-soft)">
                     <div className="flex items-center gap-1.5">

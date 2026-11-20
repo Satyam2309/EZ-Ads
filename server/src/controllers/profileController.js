@@ -77,8 +77,8 @@ export const getPublicProfile = asyncHandler(async (req, res) => {
   const { ObjectId } = (await import('mongoose')).default.Types;
   let profile = null;
   if (ObjectId.isValid(req.params.id)) {
-    profile = await InfluencerProfile.findOne({ _id: req.params.id, isListed: true });
-    if (!profile) profile = await InfluencerProfile.findOne({ user: req.params.id, isListed: true });
+    profile = await InfluencerProfile.findOne({ _id: req.params.id, isListed: true }).populate('user', 'displayName avatarUrl instagram email');
+    if (!profile) profile = await InfluencerProfile.findOne({ user: req.params.id, isListed: true }).populate('user', 'displayName avatarUrl instagram email');
   }
   if (!profile) throw notFound('Creator not found');
   const socials = await ConnectedSocialAccount.find({ user: profile.user }).select(

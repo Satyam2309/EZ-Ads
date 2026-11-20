@@ -184,72 +184,13 @@ export async function instagramMockCallbackHandler(req, res) {
       { user: req.user._id },
       {
         $set: {
-          'audience.followers': 125430,
           'audience.followersSource': 'meta_api',
           'audience.followersSyncedAt': new Date(),
-          'audience.engagementRate': 4.82,
           'audience.engagementSource': 'meta_api',
-          instagramInsights: {
-            followersCount: 125430,
-            mediaCount: 184,
-            engagementRate: 4.82,
-            avgLikes: 5820,
-            avgComments: 215,
-            totalReach: 1240000,
-            avgReach: 41330,
-            totalImpressions: 2870000,
-            avgImpressions: 95660,
-            profileViews: 86420,
-            websiteTaps: 7210,
-            newFollows: 3410,
-            reachTrend: [
-              { date: 'Oct 16', value: 32000 },
-              { date: 'Oct 20', value: 36000 },
-              { date: 'Oct 24', value: 39000 },
-              { date: 'Oct 28', value: 43000 },
-              { date: 'Nov 1', value: 41000 },
-              { date: 'Nov 5', value: 47000 },
-              { date: 'Nov 9', value: 52000 },
-              { date: 'Nov 14', value: 58000 }
-            ],
-            impressionsTrend: [
-              { date: 'Oct 16', value: 75000 },
-              { date: 'Oct 20', value: 82000 },
-              { date: 'Oct 24', value: 90000 },
-              { date: 'Oct 28', value: 98000 },
-              { date: 'Nov 1', value: 95000 },
-              { date: 'Nov 5', value: 110000 },
-              { date: 'Nov 9', value: 122000 },
-              { date: 'Nov 14', value: 135000 }
-            ],
-            followersTrend: [
-              { date: 'Oct 16', value: 122020 },
-              { date: 'Oct 20', value: 122500 },
-              { date: 'Oct 24', value: 123100 },
-              { date: 'Oct 28', value: 123800 },
-              { date: 'Nov 1', value: 124200 },
-              { date: 'Nov 5', value: 124700 },
-              { date: 'Nov 9', value: 125100 },
-              { date: 'Nov 14', value: 125430 }
-            ],
-            audienceCountry: [
-              { country: 'India', pct: 72.4 },
-              { country: 'United States', pct: 11.2 },
-              { country: 'United Kingdom', pct: 5.8 },
-              { country: 'Others', pct: 10.6 }
-            ],
-            audienceAge: [
-              { range: '13–17', pct: 4.1 },
-              { range: '18–24', pct: 47.8 },
-              { range: '25–34', pct: 35.2 },
-              { range: '35–44', pct: 9.4 },
-              { range: '45+', pct: 3.5 }
-            ],
-            audienceGender: { M: 62.1, F: 37.5, U: 0.4 },
-            syncedAt: new Date()
-          }
+          'instagramInsights.syncedAt': new Date()
         }
       }
+    );
     );
     return res.json({ ok: true, data: { connected: true, username: identity.username } });
   }
