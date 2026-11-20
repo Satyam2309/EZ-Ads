@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../../api/client.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 /**
  * Third email-flow page. The verification email links here:
@@ -16,6 +17,7 @@ export default function VerifyEmail() {
 
   const [state, setState] = useState(token ? 'verifying' : 'missing'); // verifying | success | error | missing
   const [errorMsg, setErrorMsg] = useState('');
+  const { refreshUser } = useAuth() || {};
   // The verify request is cached as a promise: it fires EXACTLY once even with
   // StrictMode's double-invoked effects, yet every surviving mount gets the
   // outcome (an alive-flag alone would swallow it during StrictMode's
@@ -33,11 +35,13 @@ export default function VerifyEmail() {
     let alive = true;
     verifyRef.current.then((r) => {
       if (!alive) return;
-      if (r.ok) setState('success');
-      else { setErrorMsg(r.message); setState('error'); }
+      if (r.ok) {
+        setState('success');
+        refreshUser?.();
+      } else { setErrorMsg(r.message); setState('error'); }
     });
     return () => { alive = false; };
-  }, [token]);
+  }, [token, refreshUser]);
 
   return (
     <div className="flex min-h-full items-center justify-center px-4 py-16">

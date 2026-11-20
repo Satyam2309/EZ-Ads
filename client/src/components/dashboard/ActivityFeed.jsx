@@ -166,7 +166,7 @@ export function PipelineStrip({ pipeline = [], loading, caption }) {
 
 /* ---------------- onboarding checklist ---------------- */
 
-export function SetupChecklist({ items = [], loading }) {
+export function SetupChecklist({ items = [], loading, onResendVerification, resendState }) {
   const doneCount = items.filter((i) => i.done).length;
   const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
   if (!loading && items.length > 0 && doneCount === items.length) return null;
@@ -187,28 +187,60 @@ export function SetupChecklist({ items = [], loading }) {
         <div className="mt-4 space-y-2"><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-3/4" /></div>
       ) : (
         <ul className="mt-4 space-y-2">
-          {items.map((i) => (
-            <li key={i.key}>
-              <Link
-                to={i.to || '#'}
-                className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
-                  i.done
-                    ? 'border-transparent bg-(--color-elevated) text-(--color-ink-soft)'
-                    : 'border-(--color-line) hover:border-brand-300 hover:bg-brand-50/50'
-                }`}
-              >
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-white ${
-                    i.done ? 'bg-emerald-500' : 'border border-(--color-line) bg-(--color-surface)'
+          {items.map((i) => {
+            const isEmailItem = i.key === 'email';
+            if (isEmailItem && !i.done && onResendVerification) {
+              const isSending = resendState?.status === 'sending';
+              const isSent = resendState?.status === 'sent';
+              const isError = resendState?.status === 'error';
+              return (
+                <li key={i.key}>
+                  <button
+                    type="button"
+                    onClick={onResendVerification}
+                    disabled={isSending}
+                    className="flex w-full items-center gap-3 rounded-xl border border-(--color-line) px-3 py-2.5 text-left text-sm transition-colors hover:border-brand-300 hover:bg-brand-50/50 cursor-pointer"
+                  >
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-(--color-line) bg-(--color-surface)">
+                      {isSending ? (
+                        <span className="inline-block h-2.5 w-2.5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+                      ) : null}
+                    </span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-medium text-brand-700 dark:text-brand-300">{i.label}</span>
+                      <span className={`text-xs ${isError ? 'text-red-500' : isSent ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-(--color-ink-soft)'}`}>
+                        {isSending ? 'Sending verification link…' : isSent ? resendState.message : isError ? resendState.message : 'Click to send verification link to your email'}
+                      </span>
+                    </div>
+                    <Icon name="arrow" size={15} className="ml-auto shrink-0 text-(--color-ink-soft)" />
+                  </button>
+                </li>
+              );
+            }
+
+            return (
+              <li key={i.key}>
+                <Link
+                  to={i.to || '#'}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
+                    i.done
+                      ? 'border-transparent bg-(--color-elevated) text-(--color-ink-soft)'
+                      : 'border-(--color-line) hover:border-brand-300 hover:bg-brand-50/50'
                   }`}
                 >
-                  {i.done && <Icon name="check" size={12} />}
-                </span>
-                <span className={i.done ? 'line-through' : 'font-medium'}>{i.label}</span>
-                {!i.done && <Icon name="arrow" size={15} className="ml-auto text-(--color-ink-soft)" />}
-              </Link>
-            </li>
-          ))}
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-white ${
+                      i.done ? 'bg-emerald-500' : 'border border-(--color-line) bg-(--color-surface)'
+                    }`}
+                  >
+                    {i.done && <Icon name="check" size={12} />}
+                  </span>
+                  <span className={i.done ? 'line-through' : 'font-medium'}>{i.label}</span>
+                  {!i.done && <Icon name="arrow" size={15} className="ml-auto text-(--color-ink-soft)" />}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </Card>

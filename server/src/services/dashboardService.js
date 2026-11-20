@@ -64,7 +64,9 @@ async function pipelineCounts(filter) {
 
 /* ---------------- Brand ---------------- */
 
-async function brandOverview(userId) {
+async function brandOverview(userOrId) {
+  const userId = userOrId?._id || userOrId;
+  const isEmailVerified = Boolean(userOrId?.emailVerified);
   const [campaignsByStatus, applicationRows, invitationRows, shortlists, agreements, spend, unread, activity] = await Promise.all([
     Campaign.aggregate([{ $match: { brand: userId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
     // applications only on this brand's campaigns
@@ -117,7 +119,7 @@ async function brandOverview(userId) {
     spend: { ...spend, simulated: true, currency: 'INR' },
     activity,
     checklist: [
-      { key: 'email', label: 'Verify your brand email', to: null, done: false },
+      { key: 'email', label: 'Verify your brand email', to: isEmailVerified ? null : '#verify-email', done: isEmailVerified },
       { key: 'campaign', label: 'Create your first campaign', to: '/brand/campaigns', done: (campaignsByStatus.reduce((n, r) => n + r.count, 0)) > 0 },
       { key: 'creators', label: 'Shortlist at least 3 creators', to: '/brand/discovery', done: short.creators >= 3 },
       { key: 'publish', label: 'Publish a campaign so creators can apply', to: '/brand/campaigns', done: live > 0 }
@@ -177,7 +179,7 @@ async function influencerOverview(userId) {
 
 export async function getDashboardOverview(user) {
   const id = user._id;
-  if (user.role === 'brand') return brandOverview(id);
+  if (user.role === 'brand') return brandOverview(user);
   if (user.role === 'influencer') return influencerOverview(id);
   return { role: user.role, totals: {}, pipeline: [], activity: [], checklist: [] };
 }

@@ -44,9 +44,14 @@ function useResendVerification(email) {
 }
 
 export default function BrandDashboard() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { data, err } = useOverview();
   const { state: resendState, resend } = useResendVerification(user?.email);
+
+  useEffect(() => {
+    refreshUser?.();
+  }, [refreshUser]);
+
   if (!user) return null;
 
   const t = data?.totals || {};
@@ -108,7 +113,12 @@ export default function BrandDashboard() {
         />
         <div className="space-y-6">
           <PipelineStrip pipeline={data?.pipeline ?? []} loading={loading} />
-          <SetupChecklist items={data?.checklist ?? []} loading={loading} />
+          <SetupChecklist
+            items={data?.checklist ?? []}
+            loading={loading}
+            onResendVerification={resend}
+            resendState={resendState}
+          />
         </div>
       </div>
     </div>
