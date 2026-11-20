@@ -9,7 +9,7 @@ import { User, InfluencerProfile } from '../models/index.js';
 import { AppError } from '../utils/errors.js';
 import { decryptSecret } from './instagramOAuth.js';
 
-const GRAPH = 'https://graph.facebook.com/v23.0';
+const GRAPH = 'https://graph.facebook.com/v22.0';
 
 async function graphGet(path, params, token) {
   const url = new URL(`${GRAPH}/${path}`);

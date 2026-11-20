@@ -17,17 +17,18 @@ import { AppError } from '../utils/errors.js';
 import { encryptSecret, decryptSecret } from '../utils/tokenCrypto.js';
 import { signState, verifyState } from './oauthState.js';
 
-// Unified Login endpoints (Facebook Login for Business)
-const AUTH_URL = 'https://www.facebook.com/v23.0/dialog/oauth';
-const TOKEN_URL = 'https://graph.facebook.com/v23.0/oauth/access_token';
-const GRAPH_ME  = 'https://graph.instagram.com/v23.0/me';
+// Endpoints (Facebook Login with Instagram Graph API)
+const AUTH_URL = 'https://www.facebook.com/v22.0/dialog/oauth';
+const TOKEN_URL = 'https://graph.facebook.com/v22.0/oauth/access_token';
+const GRAPH_ME  = 'https://graph.instagram.com/v22.0/me';
 
 export function buildAuthorizeUrl(state) {
+  const scopes = env.META_SCOPES || 'instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement';
   const params = new URLSearchParams({
     client_id:     env.META_APP_ID,
     redirect_uri:  env.META_REDIRECT_URI,
     response_type: 'code',
-    config_id:     env.META_CONFIG_ID,  // required for Unified Login
+    scope:         scopes,
     state                               // CSRF protection — Meta echoes this back to callback
   });
   return `${AUTH_URL}?${params}`;
@@ -81,7 +82,7 @@ export async function exchangeCodeForIdentity(code) {
   // Strategy A: Unified Login / Facebook Login for Business -> /me/assigned_instagram_accounts
   try {
     const assignedRes = await fetch(
-      `https://graph.facebook.com/v23.0/me/assigned_instagram_accounts?fields=id,username,name&access_token=${encodeURIComponent(accessToken)}`
+      `https://graph.facebook.com/v22.0/me/assigned_instagram_accounts?fields=id,username,name&access_token=${encodeURIComponent(accessToken)}`
     );
     if (assignedRes.ok) {
       const assignedData = await assignedRes.json();
@@ -100,7 +101,7 @@ export async function exchangeCodeForIdentity(code) {
   if (!providerId) {
     try {
       const accountsRes = await fetch(
-        `https://graph.facebook.com/v23.0/me/accounts?fields=id,name,instagram_business_account{id,username,name}&access_token=${encodeURIComponent(accessToken)}`
+        `https://graph.facebook.com/v22.0/me/accounts?fields=id,name,instagram_business_account{id,username,name}&access_token=${encodeURIComponent(accessToken)}`
       );
       if (accountsRes.ok) {
         const accountsData = await accountsRes.json();
@@ -121,7 +122,7 @@ export async function exchangeCodeForIdentity(code) {
   if (!providerId) {
     try {
       const igMeRes = await fetch(
-        `https://graph.instagram.com/v23.0/me?fields=user_id,username,account_type&access_token=${encodeURIComponent(accessToken)}`
+        `https://graph.instagram.com/v22.0/me?fields=user_id,username,account_type&access_token=${encodeURIComponent(accessToken)}`
       );
       if (igMeRes.ok) {
         const igMeData = await igMeRes.json();
@@ -141,7 +142,7 @@ export async function exchangeCodeForIdentity(code) {
   if (!providerId) {
     try {
       const fbMeRes = await fetch(
-        `https://graph.facebook.com/v23.0/me?fields=id,name,short_name&access_token=${encodeURIComponent(accessToken)}`
+        `https://graph.facebook.com/v22.0/me?fields=id,name,short_name&access_token=${encodeURIComponent(accessToken)}`
       );
       if (fbMeRes.ok) {
         const fbMeData = await fbMeRes.json();

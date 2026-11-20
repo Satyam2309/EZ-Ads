@@ -54,7 +54,7 @@ if (!isProduction && !clientOrigins.includes('http://localhost:5173')) {
 export const env = { ...parsed.data, CLIENT_ORIGIN: clientOrigins[0] || 'http://localhost:5173' };
 export const isProd = isProduction;
 export const isTest = env.NODE_ENV === 'test';
-export const oauthMockMode = env.OAUTH_MOCK_MODE === 'true' || !env.META_APP_ID || !env.META_APP_SECRET || !env.META_CONFIG_ID;
+export const oauthMockMode = env.OAUTH_MOCK_MODE === 'true' || !env.META_APP_ID || !env.META_APP_SECRET;
 
 /**
  * Production fail-fast: the schema's dev-only fallbacks keep local dev zero-
