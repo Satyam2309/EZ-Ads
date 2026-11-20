@@ -52,7 +52,7 @@ export default function Payments() {
       ) : (
         <Card className="mt-6 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-left text-xs text-neutral-500">
+            <thead className="bg-(--color-elevated) text-left text-xs text-(--color-ink-soft)">
               <tr>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Campaign</th>

@@ -113,7 +113,7 @@ export default function Shortlists() {
                   const infl = item.influencer; // ref populated server-side
                   if (!infl || typeof infl !== 'object') return null;
                   return (
-                    <div key={item._id} className="flex items-start gap-3 rounded-xl border border-neutral-200 p-4">
+                    <div key={item._id} className="flex items-start gap-3 rounded-xl border border-(--color-line) bg-(--color-surface) p-4">
                       <CreatorAvatar creator={{ displayName: infl.displayName, user: infl }} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold">{infl.displayName}</p>

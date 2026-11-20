@@ -189,22 +189,22 @@ export default function CampaignDetail() {
           <form onSubmit={saveEdit} className="mt-4 grid gap-4 border-t border-neutral-100 pt-4 sm:grid-cols-2">
             <label className="sm:col-span-2 text-sm font-medium">Title
               <input required maxLength={120} value={edit.title} onChange={(e) => setEdit((f) => ({ ...f, title: e.target.value }))}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="sm:col-span-2 text-sm font-medium">Description
               <textarea required maxLength={4000} rows={3} value={edit.description}
                 onChange={(e) => setEdit((f) => ({ ...f, description: e.target.value }))}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="text-sm font-medium">Budget (INR)
               <input required type="number" min="0" value={edit.budgetTotal}
                 onChange={(e) => setEdit((f) => ({ ...f, budgetTotal: e.target.value }))}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="text-sm font-medium">Application deadline
               <input type="date" value={edit.applicationDeadline}
                 onChange={(e) => setEdit((f) => ({ ...f, applicationDeadline: e.target.value }))}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <div className="sm:col-span-2"><Button type="submit" size="sm">Save changes</Button></div>
           </form>
@@ -259,7 +259,7 @@ export default function CampaignDetail() {
                       Agreement created — see the “Agreements” section below.
                     </p>
                   ) : (
-                    <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50/50 p-4">
+                    <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/50 dark:border-brand-900/40 dark:bg-brand-950/20 p-4">
                       <p className="text-sm font-medium">Set up the agreement</p>
                       <form onSubmit={(e) => { e.preventDefault(); startAgreement(a); }}
                         className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -267,18 +267,18 @@ export default function CampaignDetail() {
                           <input required type="number" min="0"
                             value={agrForm[a._id]?.agreedAmount ?? ''}
                             onChange={(e) => setA(a._id, 'agreedAmount', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                            className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
                         </label>
                         <label className="text-sm font-medium">Deliverable deadline
                           <input type="date" value={agrForm[a._id]?.deliverableDeadline ?? ''}
                             onChange={(e) => setA(a._id, 'deliverableDeadline', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                            className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
                         </label>
                         <label className="sm:col-span-2 text-sm font-medium">Terms
                           <textarea rows={2} maxLength={4000} placeholder="Deliverables, usage rights, exclusivity…"
                             value={agrForm[a._id]?.terms ?? ''}
                             onChange={(e) => setA(a._id, 'terms', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                            className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
                         </label>
                         <div className="sm:col-span-2 flex items-center gap-2">
                           <Button size="sm" type="submit">Create agreement draft</Button>
@@ -300,10 +300,10 @@ export default function CampaignDetail() {
         <form onSubmit={invite} className="mt-3 grid gap-3 sm:grid-cols-[1fr_2fr_auto]">
           <input required placeholder="Creator user id" value={inviteForm.influencerId}
             onChange={(e) => setInviteForm((f) => ({ ...f, influencerId: e.target.value }))}
-            className="h-9 rounded-lg border border-neutral-200 px-3 text-sm" />
+            className="h-9 rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 text-sm" />
           <input placeholder="Message (optional)" value={inviteForm.message}
             onChange={(e) => setInviteForm((f) => ({ ...f, message: e.target.value }))}
-            className="h-9 rounded-lg border border-neutral-200 px-3 text-sm" />
+            className="h-9 rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 text-sm" />
           <Button size="sm" type="submit">Invite</Button>
         </form>
         <p className="mt-1 text-xs text-neutral-500">
@@ -372,3 +372,4 @@ export default function CampaignDetail() {
     </div>
   );
 }
+

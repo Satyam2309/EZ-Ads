@@ -31,7 +31,7 @@ export default function CompareTray() {
         <p className="text-sm font-semibold text-brand-700">Compare ({compare.items.length}/{compare.max})</p>
         <div className="flex flex-wrap gap-2">
           {compare.items.map((c) => (
-            <span key={c._id} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium ring-1 ring-brand-200">
+            <span key={c._id} className="inline-flex items-center gap-1 rounded-full bg-(--color-surface) px-3 py-1 text-xs font-medium text-(--color-ink) ring-1 ring-brand-200">
               {c.displayName}
               <button aria-label={`Remove ${c.displayName} from compare`} className="text-neutral-400 hover:text-red-600"
                 onClick={() => compare.toggle(c)}>✕</button>
@@ -46,7 +46,7 @@ export default function CompareTray() {
 
       {open && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-neutral-900/40 p-4" onClick={() => setOpen(false)}>
-          <div className="max-h-[85vh] w-full max-w-4xl overflow-auto rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="max-h-[85vh] w-full max-w-4xl overflow-auto rounded-2xl bg-(--color-surface) text-(--color-ink) p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
               <h2 className="text-lg font-bold">Side-by-side comparison</h2>
               <button className="text-neutral-400 hover:text-neutral-700" onClick={() => setOpen(false)}>✕</button>

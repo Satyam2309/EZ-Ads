@@ -45,7 +45,7 @@ export default function VerifyEmail() {
 
   return (
     <div className="flex min-h-full items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md p-8 text-center ring-1 ring-neutral-200 rounded-2xl bg-white shadow-sm">
+      <div className="w-full max-w-md p-8 text-center ring-1 ring-(--color-line) rounded-2xl bg-(--color-surface) text-(--color-ink) shadow-sm">
         <h1 className="text-xl font-bold">Email verification</h1>
 
         {state === 'verifying' && (

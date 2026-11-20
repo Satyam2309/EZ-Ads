@@ -182,7 +182,7 @@ export default function Chat() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Type a message…" maxLength={4000}
-                className="h-10 w-full rounded-lg border border-neutral-200 px-3 text-sm"
+                className="h-10 w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 text-sm"
               />
               <Button type="submit" size="sm" disabled={!draft.trim()}>Send</Button>
             </form>

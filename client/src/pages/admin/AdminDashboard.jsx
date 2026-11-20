@@ -147,7 +147,7 @@ function Users() {
       ) : (
         <Card className="mt-4 overflow-visible">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-left text-xs text-neutral-500">
+            <thead className="bg-(--color-elevated) text-left text-xs text-(--color-ink-soft)">
               <tr>
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Role</th>
@@ -286,7 +286,7 @@ function Transactions() {
       ) : (
         <Card className="mt-4 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-left text-xs text-neutral-500">
+            <thead className="bg-(--color-elevated) text-left text-xs text-(--color-ink-soft)">
               <tr>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Campaign</th>
@@ -331,7 +331,7 @@ function AuditLogTable() {
   return (
     <div className="mt-6">
       <div className="flex items-center gap-3">
-        <select value={action} onChange={(e) => setAction(e.target.value)} className="rounded-lg border border-neutral-300 px-3 py-2 text-sm">
+        <select value={action} onChange={(e) => setAction(e.target.value)} className="rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm">
           <option value="">All actions</option>
           <option value="admin.">Admin actions</option>
           <option value="auth.">Auth events</option>
@@ -344,7 +344,7 @@ function AuditLogTable() {
       ) : (
         <Card className="mt-4 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-left text-xs text-neutral-500">
+            <thead className="bg-(--color-elevated) text-left text-xs text-(--color-ink-soft)">
               <tr>
                 <th className="px-4 py-3">When</th>
                 <th className="px-4 py-3">Action</th>
@@ -378,7 +378,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold tracking-tight">Platform admin</h1>
           <p className="mt-1 text-sm text-neutral-500">Operations console — users, moderation, ledger and audit trail.</p>
         </div>
-        <nav className="flex gap-1 rounded-full border border-neutral-200 bg-white p-1">
+        <nav className="flex gap-1 rounded-full border border-(--color-line) bg-(--color-surface) p-1">
           {TABS.map(([key, label]) => (
             <button key={key} type="button" onClick={() => setTab(key)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${tab === key ? 'bg-brand-600 text-white' : 'text-neutral-600 hover:text-neutral-900'}`}>

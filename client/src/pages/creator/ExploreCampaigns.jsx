@@ -60,7 +60,7 @@ export default function ExploreCampaigns() {
         </div>
         <input
           value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="Filter by niche…"
-          className="h-9 rounded-lg border border-neutral-200 px-3 text-sm"
+          className="h-9 rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 text-sm"
         />
       </div>
 
@@ -126,18 +126,18 @@ export default function ExploreCampaigns() {
                 <label className="text-sm font-medium">Your rate (INR) *
                   <input required type="number" min="0" value={applyForm.proposedRate}
                     onChange={(e) => setApplyForm((f) => ({ ...f, proposedRate: e.target.value }))}
-                    className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                    className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm" />
                 </label>
                 <label className="text-sm font-medium">Message to the brand
                   <textarea rows={3} maxLength={2000} placeholder="Why you’re a fit, your audience, past work…"
                     value={applyForm.message}
                     onChange={(e) => setApplyForm((f) => ({ ...f, message: e.target.value }))}
-                    className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                    className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm" />
                 </label>
                 <label className="text-sm font-medium">Work links (comma-separated)
                   <input placeholder="https://…, https://…" value={applyForm.links}
                     onChange={(e) => setApplyForm((f) => ({ ...f, links: e.target.value }))}
-                    className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                    className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm" />
                 </label>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-neutral-500">If accepted, the brand proposes the final amount — you confirm before anything is active.</span>
@@ -175,3 +175,4 @@ export default function ExploreCampaigns() {
     </div>
   );
 }
+

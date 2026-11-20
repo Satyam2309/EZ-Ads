@@ -119,7 +119,7 @@ export default function Inbox() {
                       <div><dt className="text-xs text-neutral-500">Agreed amount</dt><dd>{money(a.agreedAmount, a.currency)}</dd></div>
                       <div><dt className="text-xs text-neutral-500">Platform commission</dt><dd>{money(a.commissionAmount, a.currency)} ({a.commissionPercent}%)</dd></div>
                     </dl>
-                    {a.terms && <p className="mt-2 whitespace-pre-line rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">{a.terms}</p>}
+                    {a.terms && <p className="mt-2 whitespace-pre-line rounded-lg bg-(--color-elevated) text-(--color-ink-soft) p-3 text-xs">{a.terms}</p>}
                     <p className="mt-1 text-xs text-neutral-500">
                       Deliver by: {a.deliverableDeadline ? new Date(a.deliverableDeadline).toLocaleDateString() : 'No deadline set'}
                     </p>
@@ -151,3 +151,4 @@ export default function Inbox() {
     </div>
   );
 }
+

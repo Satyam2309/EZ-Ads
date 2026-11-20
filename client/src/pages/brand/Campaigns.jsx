@@ -93,33 +93,33 @@ export default function Campaigns() {
             <label className="sm:col-span-2 text-sm font-medium">
               Title *
               <input required maxLength={120} value={form.title} onChange={set('title')}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="sm:col-span-2 text-sm font-medium">
               Description *
               <textarea required maxLength={4000} rows={4} value={form.description} onChange={set('description')}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="text-sm font-medium">
               Niche
               <input maxLength={60} placeholder="e.g. fitness, fashion" value={form.niche} onChange={set('niche')}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="text-sm font-medium">
               Budget (INR) *
               <input type="number" min="0" required value={form.budgetTotal} onChange={set('budgetTotal')}
                 placeholder="Total budget, e.g. 50000"
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="text-sm font-medium">
               Application deadline
               <input type="date" value={form.applicationDeadline} onChange={set('applicationDeadline')}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <label className="text-sm font-medium">
               Product info
               <input maxLength={2000} value={form.productInfo} onChange={set('productInfo')}
-                className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+                className="mt-1 block w-full rounded-lg border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
             </label>
             <div className="sm:col-span-2">
               <Button type="submit" disabled={creating}>{creating ? 'Creating…' : 'Create draft campaign'}</Button>
@@ -185,3 +185,4 @@ export default function Campaigns() {
     </div>
   );
 }
+

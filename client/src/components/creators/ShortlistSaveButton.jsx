@@ -52,7 +52,7 @@ export default function ShortlistSaveButton({ influencerId, disabled }) {
     <div className="relative" ref={boxRef}>
       <Button size="sm" variant="secondary" onClick={() => setOpen((o) => !o)}>☆ Save</Button>
       {open && (
-        <div className="absolute z-20 mt-2 w-64 rounded-xl border border-neutral-200 bg-white p-3 shadow-lg">
+        <div className="absolute z-20 mt-2 w-64 rounded-xl border border-(--color-line) bg-(--color-surface) p-3 shadow-lg text-(--color-ink)">
           <p className="text-xs font-semibold text-neutral-500">Save to shortlist</p>
           {lists === null ? (
             <p className="mt-2 text-sm text-neutral-500">Loading…</p>
@@ -74,7 +74,7 @@ export default function ShortlistSaveButton({ influencerId, disabled }) {
           )}
           <div className="mt-2 flex gap-1.5">
             <input
-              className="h-8 w-full rounded-md border border-neutral-200 px-2 text-sm"
+              className="h-8 w-full rounded-md border border-(--color-line) bg-(--color-surface) text-(--color-ink) px-2 text-sm"
               placeholder="New list name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
