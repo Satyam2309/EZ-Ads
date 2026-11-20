@@ -79,10 +79,15 @@ function Navbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [unreadChat, setUnreadChat] = useState(0);
   const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // lightweight badge polling (socket push updates the page itself; polling keeps it simple)
+  // Close mobile menu on route change
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  // Lightweight badge polling
   useEffect(() => {
     if (!user) { setUnreadChat(0); setUnreadNotifs(0); return; }
     let alive = true;
@@ -94,47 +99,221 @@ function Navbar() {
     const id = setInterval(tick, 30000);
     return () => { alive = false; clearInterval(id); };
   }, [user]);
+
+  // Brand nav links
+  const brandLinks = [
+    { to: '/brand/discovery',  label: 'Find Creators', icon: '🔍' },
+    { to: '/brand/shortlists', label: 'Shortlists',    icon: '⭐' },
+    { to: '/brand/campaigns',  label: 'Campaigns',     icon: '📢' },
+    { to: '/brand/dashboard',  label: 'Dashboard',     icon: '📊' },
+  ];
+  // Creator nav links
+  const creatorLinks = [
+    { to: '/influencer/explore',   label: 'Explore',   icon: '🌐' },
+    { to: '/influencer/inbox',     label: 'Inbox',     icon: '📬' },
+    { to: '/influencer/dashboard', label: 'Dashboard', icon: '📊' },
+    { to: '/payments',             label: 'Payments',  icon: '💳' },
+  ];
+
+  const roleLinks = user?.role === 'brand' ? brandLinks : user?.role === 'influencer' ? creatorLinks : [];
+
   return (
-    <header className="sticky top-0 z-10 border-b border-(--color-line) bg-(--color-canvas)/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-(--color-line) bg-(--color-canvas)/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" aria-label="EZ Ads — home" className="flex items-center transition-opacity hover:opacity-90">
+
+        {/* Logo */}
+        <Link to="/" aria-label="EZ Ads — home" className="flex shrink-0 items-center transition-opacity hover:opacity-90">
           <BrandLogo />
         </Link>
-        <nav className="hidden gap-4 md:flex lg:gap-6">
-          <NavLink to="/" end className={({ isActive }) => navLinkClass(isActive)}>Home</NavLink>
-          {user?.role === 'brand' && <NavLink to="/brand/discovery" className={({ isActive }) => navLinkClass(isActive)}>Find creators</NavLink>}
-          {user?.role === 'brand' && <NavLink to="/brand/shortlists" className={({ isActive }) => navLinkClass(isActive)}>Shortlists</NavLink>}
-          {user?.role === 'brand' && <NavLink to="/brand/campaigns" className={({ isActive }) => navLinkClass(isActive)}>Campaigns</NavLink>}
-          {user?.role === 'brand' && <NavLink to="/brand/dashboard" className={({ isActive }) => navLinkClass(isActive)}>Dashboard</NavLink>}
-          {user?.role === 'influencer' && <NavLink to="/influencer/explore" className={({ isActive }) => navLinkClass(isActive)}>Explore campaigns</NavLink>}
-          {user?.role === 'influencer' && <NavLink to="/influencer/inbox" className={({ isActive }) => navLinkClass(isActive)}>Inbox</NavLink>}
-          {user?.role === 'influencer' && <NavLink to="/payments" className={({ isActive }) => navLinkClass(isActive)}>Payments</NavLink>}
-          {user && <NavLink to="/chat" className={({ isActive }) => navLinkClass(isActive || unreadChat > 0)}>Chat{unreadChat > 0 ? ` (${unreadChat})` : ''}</NavLink>}
-          {user && <NavLink to="/notifications" className={({ isActive }) => `${navLinkClass(isActive || unreadNotifs > 0)} px-2`}>🔔{unreadNotifs > 0 ? ` ${unreadNotifs}` : ''}</NavLink>}
-          {user?.role === 'influencer' && <NavLink to="/influencer/dashboard" className={({ isActive }) => navLinkClass(isActive)}>Dashboard</NavLink>}
-          {user && <NavLink to="/settings" className={({ isActive }) => navLinkClass(isActive)}>Settings</NavLink>}
-          {user?.role === 'admin' && <NavLink to="/admin" className={({ isActive }) => navLinkClass(isActive)}>⚙ Admin</NavLink>}
+
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-1 md:flex">
+          {!user && (
+            <NavLink to="/" end className={({ isActive }) => navLinkClass(isActive) + ' px-3 py-2 rounded-lg'}>
+              Home
+            </NavLink>
+          )}
+          {roleLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300'
+                    : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
+                }`
+              }
+            >
+              <span className="text-base leading-none">{link.icon}</span>
+              {link.label}
+            </NavLink>
+          ))}
+          {user?.role === 'admin' && (
+            <NavLink to="/admin" className={({ isActive }) => navLinkClass(isActive) + ' px-3 py-2 rounded-lg'}>
+              ⚙ Admin
+            </NavLink>
+          )}
         </nav>
-        <div className="flex items-center gap-2 sm:gap-3">
+
+        {/* Right side controls */}
+        <div className="flex items-center gap-1 sm:gap-2">
+
+          {/* Chat icon with badge */}
+          {user && (
+            <NavLink
+              to="/chat"
+              title="Chat"
+              className={({ isActive }) =>
+                `relative flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors ${
+                  isActive ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/40' : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
+                }`
+              }
+            >
+              💬
+              {unreadChat > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white leading-none">
+                  {unreadChat > 9 ? '9+' : unreadChat}
+                </span>
+              )}
+            </NavLink>
+          )}
+
+          {/* Notification bell icon with badge */}
+          {user && (
+            <NavLink
+              to="/notifications"
+              title="Notifications"
+              className={({ isActive }) =>
+                `relative flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors ${
+                  isActive ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/40' : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
+                }`
+              }
+            >
+              🔔
+              {unreadNotifs > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white leading-none">
+                  {unreadNotifs > 9 ? '9+' : unreadNotifs}
+                </span>
+              )}
+            </NavLink>
+          )}
+
+          {/* Settings icon (logged in) */}
+          {user && (
+            <NavLink
+              to="/settings"
+              title="Settings"
+              className={({ isActive }) =>
+                `flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors ${
+                  isActive ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/40' : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
+                }`
+              }
+            >
+              ⚙️
+            </NavLink>
+          )}
+
+          {/* Theme toggle */}
           <button
             type="button"
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-lg transition-colors hover:bg-(--color-elevated)"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors hover:bg-(--color-elevated) text-(--color-ink-soft)"
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
+
+          {/* Auth buttons */}
           {user ? (
-            <Button variant="secondary" size="sm" onClick={() => { logout(); navigate('/'); }}>Log out</Button>
+            <button
+              onClick={() => { logout(); navigate('/'); }}
+              className="hidden rounded-lg border border-(--color-line) bg-(--color-surface) px-3 py-1.5 text-sm font-medium text-(--color-ink) transition-colors hover:bg-(--color-elevated) sm:block"
+            >
+              Log out
+            </button>
           ) : (
-            <>
+            <div className="hidden items-center gap-2 sm:flex">
               <Button variant="ghost" size="sm" to="/login/brand">Brand login</Button>
-              <Button variant="ghost" size="sm" to="/login/creator" className="hidden sm:inline-flex">Creator login</Button>
-              <Button size="sm" className="hidden sm:inline-flex" to="/register/brand">Get started</Button>
-            </>
+              <Button variant="ghost" size="sm" to="/login/creator">Creator login</Button>
+              <Button size="sm" to="/register/brand">Get started</Button>
+            </div>
           )}
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label="Toggle menu"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors hover:bg-(--color-elevated) md:hidden"
+          >
+            {mobileOpen ? '✕' : '☰'}
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown menu */}
+      {mobileOpen && (
+        <div className="border-t border-(--color-line) bg-(--color-canvas) px-4 pb-4 md:hidden">
+          <nav className="mt-3 space-y-1">
+            {!user && (
+              <NavLink to="/" end className={({ isActive }) => `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
+                🏠 Home
+              </NavLink>
+            )}
+            {roleLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                    isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'
+                  }`
+                }
+              >
+                <span>{link.icon}</span> {link.label}
+              </NavLink>
+            ))}
+            {user && (
+              <>
+                <NavLink to="/chat" className={({ isActive }) => `flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
+                  <span>💬 Chat</span>
+                  {unreadChat > 0 && <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-bold text-white">{unreadChat}</span>}
+                </NavLink>
+                <NavLink to="/notifications" className={({ isActive }) => `flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
+                  <span>🔔 Notifications</span>
+                  {unreadNotifs > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">{unreadNotifs}</span>}
+                </NavLink>
+                <NavLink to="/settings" className={({ isActive }) => `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
+                  ⚙️ Settings
+                </NavLink>
+              </>
+            )}
+            {user?.role === 'admin' && (
+              <NavLink to="/admin" className={({ isActive }) => `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
+                ⚙ Admin Panel
+              </NavLink>
+            )}
+            {!user && (
+              <div className="mt-3 flex flex-col gap-2 border-t border-(--color-line) pt-3">
+                <Button variant="ghost" size="sm" to="/login/brand">Brand login</Button>
+                <Button variant="ghost" size="sm" to="/login/creator">Creator login</Button>
+                <Button size="sm" to="/register/brand">Get started</Button>
+              </div>
+            )}
+            {user && (
+              <div className="mt-3 border-t border-(--color-line) pt-3">
+                <button
+                  onClick={() => { logout(); navigate('/'); }}
+                  className="w-full rounded-xl border border-(--color-line) py-2.5 text-sm font-medium text-(--color-ink) hover:bg-(--color-elevated) transition-colors"
+                >
+                  Log out
+                </button>
+              </div>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
