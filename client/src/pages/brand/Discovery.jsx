@@ -97,11 +97,11 @@ export default function Discovery() {
               </div>
 
               {result.items.length === 0 ? (
-                <div className="mt-4 rounded-xl border border-(--color-line) bg-(--color-surface) p-10 text-center text-sm text-(--color-ink-soft)">
+                <div className="mt-4 rounded-2xl border border-(--color-line) bg-(--color-surface) p-10 text-center text-sm text-(--color-ink-soft)">
                   No creators match these filters yet. Try widening the range or clearing filters.
                 </div>
               ) : (
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="mt-4 grid gap-5 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {result.items.map((c) => <CreatorCard key={c._id} creator={c} />)}
                 </div>
               )}

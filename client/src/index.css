@@ -489,7 +489,9 @@ body {
   border-radius: 0.875rem;
   border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
   background: color-mix(in srgb, var(--elevated) 55%, transparent);
-  padding: 0.6rem 0.75rem;
+  padding: 0.5rem 0.6rem;
+  min-width: 0;
+  overflow: hidden;
 }
 .metric dt {
   font-size: 0.6875rem;
@@ -497,6 +499,9 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .metric dd {
   margin-top: 0.2rem;
@@ -505,6 +510,9 @@ body {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Icon chip: a small lit square used beside section titles and stats. */
