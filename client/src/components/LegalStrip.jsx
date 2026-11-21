@@ -28,6 +28,16 @@ export default function LegalStrip() {
       >
         Contact
       </Link>
+      <span className="opacity-40">•</span>
+      <a href="https://www.linkedin.com/company/ezads-co-in" target="_blank" rel="noopener noreferrer" className="rounded transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+        LinkedIn
+      </a>
+      <a href="https://www.instagram.com/ezads.co.in/" target="_blank" rel="noopener noreferrer" className="rounded transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+        Instagram
+      </a>
+      <a href="https://www.facebook.com/share/1FXMcPeUio/" target="_blank" rel="noopener noreferrer" className="rounded transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+        Facebook
+      </a>
     </nav>
   );
 }
