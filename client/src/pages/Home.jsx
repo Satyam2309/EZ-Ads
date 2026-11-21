@@ -444,8 +444,8 @@ export default function Home() {
           <div className="glass relative overflow-hidden rounded-3xl px-8 py-16 text-center">
             <div className="aurora opacity-60" aria-hidden />
             <div className="relative">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-(--color-line) bg-(--color-surface) shadow-sm">
-                <BrandMark size={36} />
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-(--color-line) bg-white p-2.5 shadow-sm dark:border-white/10 dark:bg-white/95">
+                <BrandMark height="h-9" />
               </div>
               <h2 className="font-(family:--font-display) mt-4 text-3xl font-extrabold sm:text-4xl">
                 Ready to run your <span className="text-shine">first campaign</span>?
