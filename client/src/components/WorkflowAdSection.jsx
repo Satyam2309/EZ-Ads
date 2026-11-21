@@ -6,7 +6,7 @@ import { AD_STEPS } from './workflowSteps.js';
 /* The real walkthrough clip. Replacing this file updates the section — no code
    change needed. It is 10s, 1280x720, H.264 at 2.3 MB, so it can autoplay muted
    anywhere; the poster covers the gap before the first frame decodes. */
-const SRC_MP4 = '/media/ezads-ad.mp4';
+const SRC_MP4 = '/media/ezads-ad.mp4?v=2';
 const POSTER = '/media/ezads-ad-poster.jpg';
 
 const STEP_ICONS = ['search', 'message', 'shield', 'check', 'wallet'];
