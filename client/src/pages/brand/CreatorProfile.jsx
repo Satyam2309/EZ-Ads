@@ -276,9 +276,9 @@ export default function CreatorProfile() {
 
         {/* 4 Stats Cards Row — 100% Real Numbers */}
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-2xl border border-(--color-line) bg-(--color-canvas) p-4 text-center">
-            <span className="text-sm">👥</span>
-            <div className="mt-1 text-2xl font-extrabold text-(--color-ink)">{fmt(followers)}</div>
+          <div className="metric text-center">
+            <span className="icon-chip mx-auto h-7 w-7 text-sm">👥</span>
+            <div className="figure mt-1.5 text-2xl text-(--color-ink)">{fmt(followers)}</div>
             <div className="text-xs text-(--color-ink-soft)">Followers</div>
             <div className="mt-1">
               <Badge tone={isVerified ? 'success' : 'neutral'}>
@@ -287,9 +287,9 @@ export default function CreatorProfile() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-(--color-line) bg-(--color-canvas) p-4 text-center">
-            <span className="text-sm">⚡</span>
-            <div className="mt-1 text-2xl font-extrabold text-(--color-ink)">{engagement != null ? `${engagement}%` : '—'}</div>
+          <div className="metric text-center">
+            <span className="icon-chip mx-auto h-7 w-7 text-sm">⚡</span>
+            <div className="figure mt-1.5 text-2xl text-(--color-ink)">{engagement != null ? `${engagement}%` : '—'}</div>
             <div className="text-xs text-(--color-ink-soft)">Engagement Rate</div>
             <div className="mt-1">
               <Badge tone={engagement != null ? (ins.engagementRate ? 'success' : 'neutral') : 'neutral'}>
@@ -298,9 +298,9 @@ export default function CreatorProfile() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-(--color-line) bg-(--color-canvas) p-4 text-center">
-            <span className="text-sm">▷</span>
-            <div className="mt-1 text-2xl font-extrabold text-(--color-ink)">{avgReach != null ? fmt(avgReach) : '—'}</div>
+          <div className="metric text-center">
+            <span className="icon-chip mx-auto h-7 w-7 text-sm">▷</span>
+            <div className="figure mt-1.5 text-2xl text-(--color-ink)">{avgReach != null ? fmt(avgReach) : '—'}</div>
             <div className="text-xs text-(--color-ink-soft)">Avg. Reach</div>
             <div className="mt-1">
               <Badge tone={avgReach != null ? 'success' : 'neutral'}>
@@ -309,9 +309,9 @@ export default function CreatorProfile() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-(--color-line) bg-(--color-canvas) p-4 text-center">
-            <span className="text-sm">👁️</span>
-            <div className="mt-1 text-2xl font-extrabold text-(--color-ink)">{avgImpressions != null ? fmt(avgImpressions) : '—'}</div>
+          <div className="metric text-center">
+            <span className="icon-chip mx-auto h-7 w-7 text-sm">👁️</span>
+            <div className="figure mt-1.5 text-2xl text-(--color-ink)">{avgImpressions != null ? fmt(avgImpressions) : '—'}</div>
             <div className="text-xs text-(--color-ink-soft)">Avg. Impressions</div>
             <div className="mt-1">
               <Badge tone={avgImpressions != null ? 'success' : 'neutral'}>
@@ -416,12 +416,12 @@ export default function CreatorProfile() {
                           <span>Male: <strong className="text-(--color-ink)">{gender.M || 0}%</strong></span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="h-2.5 w-2.5 rounded-full bg-pink-500" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-accent-500" />
                           <span>Female: <strong className="text-(--color-ink)">{gender.F || 0}%</strong></span>
                         </div>
                         {gender.U > 0 && (
                           <div className="flex items-center gap-2">
-                            <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />
                             <span>Other: <strong className="text-(--color-ink)">{gender.U}%</strong></span>
                           </div>
                         )}
@@ -548,11 +548,11 @@ export default function CreatorProfile() {
                     </div>
                     <div className="p-3 rounded-xl bg-(--color-surface)">
                       <div className="text-xs text-(--color-ink-soft)">Female</div>
-                      <div className="text-lg font-bold text-pink-500">{gender.F || 0}%</div>
+                      <div className="figure text-lg text-accent-500">{gender.F || 0}%</div>
                     </div>
                     <div className="p-3 rounded-xl bg-(--color-surface)">
                       <div className="text-xs text-(--color-ink-soft)">Other / Unspecified</div>
-                      <div className="text-lg font-bold text-purple-500">{gender.U || 0}%</div>
+                      <div className="figure text-lg text-brand-500">{gender.U || 0}%</div>
                     </div>
                   </div>
                 </div>

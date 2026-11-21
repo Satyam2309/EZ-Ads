@@ -33,6 +33,7 @@ import Footer from './components/Footer.jsx';
 import LegalStrip from './components/LegalStrip.jsx';
 import Button from './components/ui/Button.jsx';
 import BrandLogo from './components/BrandLogo.jsx';
+import Icon from './components/ui/Icon.jsx';
 
 /* The marketing footer only closes the public pages. Auth screens stay bare
    and full-height; the signed-in app gets a slim legal row instead. */
@@ -102,23 +103,23 @@ function Navbar() {
 
   // Brand nav links
   const brandLinks = [
-    { to: '/brand/discovery',  label: 'Find Creators', icon: '🔍' },
-    { to: '/brand/shortlists', label: 'Shortlists',    icon: '⭐' },
-    { to: '/brand/campaigns',  label: 'Campaigns',     icon: '📢' },
-    { to: '/brand/dashboard',  label: 'Dashboard',     icon: '📊' },
+    { to: '/brand/discovery',  label: 'Find Creators', icon: 'search' },
+    { to: '/brand/shortlists', label: 'Shortlists',    icon: 'star' },
+    { to: '/brand/campaigns',  label: 'Campaigns',     icon: 'megaphone' },
+    { to: '/brand/dashboard',  label: 'Dashboard',     icon: 'grid' },
   ];
   // Creator nav links
   const creatorLinks = [
-    { to: '/influencer/explore',   label: 'Explore',   icon: '🌐' },
-    { to: '/influencer/inbox',     label: 'Inbox',     icon: '📬' },
-    { to: '/influencer/dashboard', label: 'Dashboard', icon: '📊' },
-    { to: '/payments',             label: 'Payments',  icon: '💳' },
+    { to: '/influencer/explore',   label: 'Explore',   icon: 'globe' },
+    { to: '/influencer/inbox',     label: 'Inbox',     icon: 'inbox' },
+    { to: '/influencer/dashboard', label: 'Dashboard', icon: 'grid' },
+    { to: '/payments',             label: 'Payments',  icon: 'wallet' },
   ];
 
   const roleLinks = user?.role === 'brand' ? brandLinks : user?.role === 'influencer' ? creatorLinks : [];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-(--color-line) bg-(--color-canvas)/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-(--color-line)/80 bg-(--color-canvas)/80 backdrop-blur-xl supports-[backdrop-filter]:bg-(--color-canvas)/65">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
@@ -138,14 +139,14 @@ function Navbar() {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                `flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-0 ${
                   isActive
-                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300'
+                    ? 'bg-brand-50 text-brand-700 shadow-[inset_0_1px_0_rgb(255_255_255/0.6)] ring-1 ring-brand-500/20 dark:bg-brand-500/15 dark:text-brand-200 dark:shadow-none dark:ring-brand-400/25'
                     : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
                 }`
               }
             >
-              <span className="text-base leading-none">{link.icon}</span>
+              <Icon name={link.icon} size={16} />
               {link.label}
             </NavLink>
           ))}
@@ -170,7 +171,7 @@ function Navbar() {
                 }`
               }
             >
-              💬
+              <Icon name="message" size={18} />
               {unreadChat > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white leading-none">
                   {unreadChat > 9 ? '9+' : unreadChat}
@@ -190,7 +191,7 @@ function Navbar() {
                 }`
               }
             >
-              🔔
+              <Icon name="bell" size={18} />
               {unreadNotifs > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white leading-none">
                   {unreadNotifs > 9 ? '9+' : unreadNotifs}
@@ -210,7 +211,7 @@ function Navbar() {
                 }`
               }
             >
-              ⚙️
+              <Icon name="gear" size={18} />
             </NavLink>
           )}
 
@@ -221,7 +222,7 @@ function Navbar() {
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors hover:bg-(--color-elevated) text-(--color-ink-soft)"
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
           </button>
 
           {/* Auth buttons */}
@@ -244,21 +245,23 @@ function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen((o) => !o)}
-            aria-label="Toggle menu"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition-colors hover:bg-(--color-elevated) md:hidden"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-(--color-ink-soft) transition-colors hover:bg-(--color-elevated) hover:text-(--color-ink) md:hidden"
           >
-            {mobileOpen ? '✕' : '☰'}
+            <Icon name={mobileOpen ? 'close' : 'menu'} size={20} />
           </button>
         </div>
       </div>
 
       {/* Mobile dropdown menu */}
       {mobileOpen && (
-        <div className="border-t border-(--color-line) bg-(--color-canvas) px-4 pb-4 md:hidden">
+        <div id="mobile-nav" className="border-t border-(--color-line) bg-(--color-canvas)/95 px-4 pb-4 backdrop-blur-xl md:hidden">
           <nav className="mt-3 space-y-1">
             {!user && (
               <NavLink to="/" end className={({ isActive }) => `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
-                🏠 Home
+                <Icon name="home" size={16} /> Home
               </NavLink>
             )}
             {roleLinks.map((link) => (
@@ -271,27 +274,27 @@ function Navbar() {
                   }`
                 }
               >
-                <span>{link.icon}</span> {link.label}
+                <Icon name={link.icon} size={16} /> {link.label}
               </NavLink>
             ))}
             {user && (
               <>
                 <NavLink to="/chat" className={({ isActive }) => `flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
-                  <span>💬 Chat</span>
+                  <span className="flex items-center gap-2"><Icon name="message" size={16} /> Chat</span>
                   {unreadChat > 0 && <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-bold text-white">{unreadChat}</span>}
                 </NavLink>
                 <NavLink to="/notifications" className={({ isActive }) => `flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
-                  <span>🔔 Notifications</span>
+                  <span className="flex items-center gap-2"><Icon name="bell" size={16} /> Notifications</span>
                   {unreadNotifs > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">{unreadNotifs}</span>}
                 </NavLink>
                 <NavLink to="/settings" className={({ isActive }) => `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
-                  ⚙️ Settings
+                  <Icon name="gear" size={16} /> Settings
                 </NavLink>
               </>
             )}
             {user?.role === 'admin' && (
               <NavLink to="/admin" className={({ isActive }) => `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-700' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'}`}>
-                ⚙ Admin Panel
+                <Icon name="gear" size={16} /> Admin Panel
               </NavLink>
             )}
             {!user && (

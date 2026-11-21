@@ -12,7 +12,7 @@ export function CreatorAvatar({ creator, size = 'h-12 w-12 text-sm' }) {
   return creator.user?.avatarUrl ? (
     <img src={creator.user.avatarUrl} alt="" className={`${size} shrink-0 rounded-full object-cover`} />
   ) : (
-    <div aria-hidden className={`${size} flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-500 to-accent-500 font-semibold text-white`}>
+    <div aria-hidden className={`${size} flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-500 to-accent-500 font-semibold text-white ring-2 ring-brand-500/20 ring-offset-2 ring-offset-(--color-surface)`}>
       {initials}
     </div>
   );
@@ -49,23 +49,26 @@ export default function CreatorCard({ creator }) {
             <Badge tone={AVAIL_TONES[creator.availability] || 'neutral'}>{avail.text}</Badge>
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2 text-center text-sm">
-            <div>
-              <span className="block text-xs text-neutral-500">Followers</span>
-              <strong>{formatFollowers(audience.followers)}</strong>{' '}
-              <span title={folSrc.title} className="cursor-help align-middle"><Badge tone={folSrc.tone}>{folSrc.text}</Badge></span>
+          {/* metric widgets: the label, the figure, and where the figure came from */}
+          <dl className="mt-4 grid grid-cols-3 gap-2">
+            <div className="metric">
+              <dt>Followers</dt>
+              <dd>{formatFollowers(audience.followers)}</dd>
+              <span title={folSrc.title} className="mt-1.5 block cursor-help"><Badge tone={folSrc.tone}>{folSrc.text}</Badge></span>
             </div>
-            <div>
-              <span className="block text-xs text-neutral-500">Engagement</span>
-              <strong>{audience.engagementRate != null ? `${audience.engagementRate}%` : '—'}</strong>{' '}
-              <span title={engSrc.title} className="cursor-help align-middle"><Badge tone={engSrc.tone}>{engSrc.text}</Badge></span>
+            <div className="metric">
+              <dt>Engagement</dt>
+              <dd>{audience.engagementRate != null ? `${audience.engagementRate}%` : '—'}</dd>
+              <span title={engSrc.title} className="mt-1.5 block cursor-help"><Badge tone={engSrc.tone}>{engSrc.text}</Badge></span>
             </div>
-            <div>
-              <span className="block text-xs text-neutral-500">From</span>
-              <strong>{formatFollowers(creator.minBudget) === '—' ? '—' : formatMoney(creator.minBudget)}</strong>
-              {creator.maxBudget > 0 && <span className="block text-xs text-neutral-500">to {formatMoney(creator.maxBudget)}</span>}
+            <div className="metric">
+              <dt>From</dt>
+              <dd>{formatFollowers(creator.minBudget) === '—' ? '—' : formatMoney(creator.minBudget)}</dd>
+              {creator.maxBudget > 0
+                ? <span className="mt-1.5 block text-[11px] text-(--color-ink-soft)">to {formatMoney(creator.maxBudget)}</span>
+                : <span className="mt-1.5 block text-[11px] text-(--color-ink-soft)">per Reel</span>}
             </div>
-          </div>
+          </dl>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="secondary" to={`/brand/creators/${creator._id}`}>View profile</Button>

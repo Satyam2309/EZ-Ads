@@ -18,6 +18,7 @@
   --color-brand-700: #145cc2;
   --color-brand-800: #154c9c;
   --color-brand-900: #17427d;
+  --color-brand-950: #0f2f5c;
   /* Accent: warm orange for highlights, secondary CTAs, ratings */
   --color-accent-50: #fff4ec;
   --color-accent-100: #ffe6d5;
@@ -27,6 +28,7 @@
   --color-accent-500: #f96a2b;
   --color-accent-600: #ea4f15;
   --color-accent-700: #c23a12;
+  --color-accent-950: #4a1c08;
 
   /* Neutral re-map: app screens use raw neutral-tint classes and plain white,
      so the whole palette is remapped to stone tones for the marketplace-warm
@@ -52,6 +54,7 @@
   --color-ink-soft: var(--ink-soft);
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
+  --color-raised: var(--raised);
 
   /* Typography: Sora for display headings, Inter for UI/body, mono for numbers */
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -74,24 +77,27 @@
 :root {
   /* warm stone family instead of cool slate — marketplace paper feel */
   --surface: #ffffff;
-  --canvas: #faf8f5;
-  --elevated: #f4f1ec;
+  --canvas: #f7f4f0;
+  --elevated: #f1ede7;
+  --raised: #ffffff;
   --ink: #1c1917;
-  --ink-soft: #6f6a63;
-  --line: #e7e2da;
-  --line-soft: #f1ede6;
+  --ink-soft: #6b665f;
+  --line: #e5dfd7;
+  --line-soft: #efeae2;
   color-scheme: light;
 }
 
 .dark {
-  /* warm charcoal family — orange accent reads naturally on it */
-  --surface: #211d1a;
-  --canvas: #161311;
-  --elevated: #2c2622;
-  --ink: #f2efec;
-  --ink-soft: #a8a29e;
-  --line: #3d3730;
-  --line-soft: #2c2622;
+  /* three visible steps of elevation rather than one wash of near-black:
+     the canvas sits lowest, cards lift off it, insets go higher again */
+  --canvas: #121010;
+  --surface: #1c1816;
+  --elevated: #272220;
+  --raised: #332d29;
+  --ink: #f5f2ef;
+  --ink-soft: #a9a29c;
+  --line: #3a332d;
+  --line-soft: #262120;
   color-scheme: dark;
 }
 
@@ -339,3 +345,74 @@ body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--color-vz-2) 45%, transparent); border-radius: 9999px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------------- surface pass ----------------
+   One panel recipe for every card-like region: a hairline that reads on both
+   themes, a faint top highlight, and a shadow that lifts without a grey halo. */
+.panel {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, var(--ink) 1%), var(--surface));
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 60%, transparent) inset,
+    0 1px 2px rgb(28 25 23 / 0.04),
+    0 14px 34px -22px rgb(28 25 23 / 0.45);
+}
+.dark .panel {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--raised) 55%, var(--surface)), var(--surface));
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.045) inset,
+    0 18px 44px -26px #000;
+}
+
+/* Numbers get one treatment everywhere: display face, tabular figures, so
+   columns of counts line up instead of shivering between digits. */
+.figure {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* A metric cell inside a card: label above, figure below, provenance under. */
+.metric {
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  background: color-mix(in srgb, var(--elevated) 55%, transparent);
+  padding: 0.6rem 0.75rem;
+}
+.metric dt {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.metric dd {
+  margin-top: 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* Icon chip: a small lit square used beside section titles and stats. */
+.icon-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: linear-gradient(180deg, var(--raised), var(--elevated));
+  box-shadow: 0 1px 0 color-mix(in srgb, white 55%, transparent) inset;
+}
+.dark .icon-chip {
+  background: linear-gradient(180deg, var(--raised), var(--surface));
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}

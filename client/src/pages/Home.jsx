@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button.jsx';
 import Badge from '../components/ui/Badge.jsx';
@@ -131,34 +131,14 @@ function useTilt() {
   return ref;
 }
 
-/* Count-up numbers when the stat band scrolls into view. */
-function useCountUp(target, started) {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (!started) return;
-    let raf;
-    const t0 = performance.now();
-    const num = parseFloat(target);
-    const suffix = String(target).replace(/[\d.]/g, '');
-    const decimals = (String(target).split('.')[1] || '').replace(/\D/g, '').length;
-    const tick = (t) => {
-      const p = Math.min(1, (t - t0) / 1200);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setN((num * eased).toFixed(decimals));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [started, target]);
-  return `${n}${String(target).replace(/[\d.]/g, '')}`;
-}
-
-function StatNumber({ value, label, started }) {
-  const display = useCountUp(value, started);
+/* The band under the hero counts things the app itself does, so each figure can
+   be checked inside the product. It carries no marketplace statistics. */
+function ProductFact({ figure, label, note }) {
   return (
     <div className="px-4 py-8 text-center">
-      <p className="stat-num text-4xl font-extrabold sm:text-5xl">{display}</p>
-      <p className="mt-2 text-xs text-(--color-ink-soft) sm:text-sm">{label}</p>
+      <p className="stat-num text-4xl font-extrabold sm:text-5xl">{figure}</p>
+      <p className="mt-2 text-xs font-semibold text-(--color-ink) sm:text-sm">{label}</p>
+      <p className="mt-1 text-xs text-(--color-ink-soft)">{note}</p>
     </div>
   );
 }
@@ -170,28 +150,17 @@ const steps = [
 ];
 
 const trust = [
-  { icon: 'shield', label: 'API-derived data only', body: 'Instagram metrics come from the official Meta authorization flow — self-reported numbers are always labeled as such.' },
+  { icon: 'shield', label: 'Every metric labelled at the source', body: 'Instagram numbers come from the official Meta authorization flow; anything the creator typed in says so on the profile.' },
   { icon: 'wallet', label: 'Escrow-style ledger', body: 'Brand funds are committed when an agreement is signed, released only against approved deliverables.' },
   { icon: 'check', label: 'Every step on record', body: 'Applications, agreements, deliverables and payouts stay attached to the campaign, visible to both sides.' }
 ];
 
-const tickerItems = [
-  '@aarav.creates · Fashion', '@maya_travels · Travel', '@buildswithsam · Tech', '@the.bowl.diaries · Food',
-  '@fitnesswithrae · Health', '@pixelplayz · Gaming', '@studytok.official · Education', '@wanderlux · Lifestyle'
-];
+/* The niches Discovery actually filters on, so the strip names the marketplace
+   without putting invented creators on screen. */
+const nicheTags = ['Fashion', 'Beauty', 'Food', 'Tech', 'Fitness', 'Travel', 'Gaming', 'Education', 'Lifestyle'];
 
 export default function Home() {
-  const [statsInView, setStatsInView] = useState(false);
-  const statsRef = useRef(null);
   const tiltRef = useTilt();
-
-  useEffect(() => {
-    const el = statsRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setStatsInView(true), { threshold: 0.3 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
 
   return (
     <div className="min-h-full overflow-x-clip">
@@ -218,8 +187,8 @@ export default function Home() {
 
           <Reveal delay={240}>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-(--color-ink-soft)">
-              EZ Ads connects brands with Instagram creators — real profiles, honest data labels,
-              and a campaign workflow that runs from invite to payout.
+              EZ Ads connects brands with Instagram creators. Creators link their own account through
+              Instagram, and every metric says where it came from.
             </p>
           </Reveal>
 
@@ -230,7 +199,7 @@ export default function Home() {
           </Reveal>
 
           {/* floating mock browser card with 3D tilt */}
-          <Reveal delay={480} className="mx-auto mt-16 max-w-4xl">
+          <Reveal delay={480} className="mx-auto mt-12 max-w-4xl">
             <div ref={tiltRef} className="tilt animate-float">
               <div className="glass rounded-2xl p-2 text-left">
                 <div className="flex items-center gap-1.5 px-3 py-2">
@@ -241,24 +210,44 @@ export default function Home() {
                     ezads.co.in/brand/discovery
                   </span>
                 </div>
-                <Card className="border-transparent p-5 shadow-none">
-                  <div className="flex items-start gap-4">
-                    <div className="animate-pulse-soft h-12 w-12 shrink-0 rounded-full bg-linear-to-br from-vz-top to-vz-3" aria-hidden />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="truncate font-semibold">Aarav Mehta</p>
-                        <Badge tone="success">API-derived</Badge>
-                      </div>
-                      <p className="truncate text-sm text-(--color-ink-soft)">@aarav.creates · Mumbai · Fashion &amp; Lifestyle</p>
-                      <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
-                        <div><dt className="text-xs text-(--color-ink-soft)">Followers</dt><dd className="text-sm font-semibold">48.2K <span className="font-normal text-(--color-ink-soft)/70">(API)</span></dd></div>
-                        <div><dt className="text-xs text-(--color-ink-soft)">Engagement</dt><dd className="text-sm font-semibold">4.6%</dd></div>
-                        <div><dt className="text-xs text-(--color-ink-soft)">From</dt><dd className="text-sm font-semibold">₹12K / Reel</dd></div>
+                <Card className="border-transparent p-4 shadow-none">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    {/* the Discovery filter rail, as it is in the app, with nothing filled in.
+                        On a phone the labelling panel carries the screen instead — it is the
+                        point of the mock, and a two-panel stack does not fit a 844px screen. */}
+                    <div className="hidden sm:block">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-ink-soft)">Filters</p>
+                      <dl className="mt-3 space-y-1.5 text-sm">
+                        {[
+                          ['Niche', 'Any niche'],
+                          ['Followers', 'min – max'],
+                          ['Engagement', 'min %'],
+                          ['Budget (₹)', 'min – max']
+                        ].map(([label, value]) => (
+                          <div key={label} className="flex items-center justify-between gap-3 rounded-lg border border-(--color-line) bg-(--color-surface) px-3 py-1.5">
+                            <dt className="text-(--color-ink-soft)">{label}</dt>
+                            <dd className="font-medium">{value}</dd>
+                          </div>
+                        ))}
                       </dl>
-                      <div className="mt-4 flex gap-2">
-                        <Button size="sm" variant="secondary">View profile</Button>
-                        <Button size="sm">Invite</Button>
-                      </div>
+                    </div>
+
+                    {/* the promise the product keeps: each number says where it came from */}
+                    <div className="sm:border-l sm:border-(--color-line) sm:pl-5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-ink-soft)">Where the numbers come from</p>
+                      <ul className="mt-3 space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <Badge tone="success">API</Badge>
+                          <span className="text-(--color-ink-soft)">Synced from the creator&apos;s Instagram account.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Badge tone="neutral">Self-reported</Badge>
+                          <span className="text-(--color-ink-soft)">Entered by the creator, never shown as verified.</span>
+                        </li>
+                      </ul>
+                      <p className="mt-2 text-xs text-(--color-ink-soft)">
+                        Starting price and availability are always the creator&apos;s own figures.
+                      </p>
                     </div>
                   </div>
                 </Card>
@@ -268,14 +257,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ STATS — count-up band ============ */}
-      <section ref={statsRef} className="relative">
+      {/* ============ PRODUCT FACTS — counts you can check inside the app ============ */}
+      <section className="relative">
         <div className="glass mx-auto max-w-7xl rounded-3xl px-4 py-2 sm:px-6">
           <div className="grid grid-cols-2 divide-x divide-(--color-line-soft) md:grid-cols-4">
-            <StatNumber started={statsInView} value="48.2K" label="avg. creator followers" />
-            <StatNumber started={statsInView} value="4.6%" label="median engagement" />
-            <StatNumber started={statsInView} value="5" label="steps from brief to payout" />
-            <StatNumber started={statsInView} value="100%" label="honest data labels" />
+            <ProductFact figure="5" label="steps from brief to payout" note="shortlist, invite, terms, review, payment" />
+            <ProductFact figure="2" label="metric sources, always labelled" note="Instagram API or self-reported" />
+            <ProductFact figure="2" label="sides on every agreement" note="the brand and the creator" />
+            <ProductFact figure="0" label="numbers without a source" note="no unlabelled audience figures" />
           </div>
         </div>
       </section>
@@ -283,7 +272,7 @@ export default function Home() {
       {/* ============ CREATOR TICKER ============ */}
       <section className="overflow-hidden py-10">
         <div className="animate-ticker flex w-max gap-4">
-          {[...tickerItems, ...tickerItems].map((item, i) => (
+          {[...nicheTags, ...nicheTags].map((item, i) => (
             <span key={i} className="glass rounded-full px-5 py-2 text-sm text-(--color-ink-soft)">
               {item}
             </span>
@@ -338,36 +327,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ CREATOR SHOWCASE ============ */}
+      {/* ============ WHAT EVERY NUMBER MEANS ============ */}
       <section id="creators" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-(family:--font-display) text-3xl font-bold tracking-tight sm:text-4xl">Creators on EZ Ads</h2>
-            <p className="mt-2 max-w-lg text-(--color-ink-soft)">Real profiles with honest labels across every niche.</p>
+            <h2 className="font-(family:--font-display) text-3xl font-bold tracking-tight sm:text-4xl">What every number means</h2>
+            <p className="mt-2 max-w-lg text-(--color-ink-soft)">
+              A creator profile is only as good as its labels, so each figure says where it came from.
+            </p>
           </div>
           <Link to="/register/brand" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-(--color-vz-link) hover:text-(--color-vz-2)">
-            Browse all creators <Icon name="arrow" size={15} className="transition-transform group-hover:translate-x-1" />
+            Create a brand account <Icon name="arrow" size={15} className="transition-transform group-hover:translate-x-1" />
           </Link>
         </Reveal>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
           {[
-            ['Aarav Mehta', '@aarav.creates', 'Fashion', '48.2K', '4.6%', 'from-vz-top to-vz-2'],
-            ['Maya Sharma', '@maya_travels', 'Travel', '92.1K', '3.9%', 'from-vz-3 to-vz-amber'],
-            ['Sam Iyer', '@buildswithsam', 'Tech', '31.4K', '5.2%', 'from-vz-mint to-vz-top'],
-            ['Rae Kapoor', '@fitnesswithrae', 'Health', '64.8K', '4.1%', 'from-vz-2 to-vz-3']
-          ].map(([name, handle, niche, followers, eng, grad], i) => (
-            <Reveal key={handle} delay={i * 100}>
-              <Card hover className="group overflow-hidden">
-                <div className={`h-20 bg-linear-to-br ${grad} opacity-80 transition-opacity group-hover:opacity-100`} aria-hidden />
-                <div className="-mt-8 px-5 pb-5">
-                  <div className={`h-14 w-14 rounded-full border-4 border-(--color-surface) bg-linear-to-br ${grad}`} aria-hidden />
-                  <p className="mt-3 font-semibold">{name}</p>
-                  <p className="text-sm text-(--color-ink-soft)">{handle} · {niche}</p>
-                  <div className="mt-3 flex gap-4 text-xs font-(family:--font-mono)">
-                    <span><strong className="text-sm">{followers}</strong> <span className="text-(--color-ink-soft)">followers</span></span>
-                    <span><strong className="text-sm">{eng}</strong> <span className="text-(--color-ink-soft)">eng.</span></span>
-                  </div>
-                </div>
+            {
+              badge: 'API',
+              tone: 'success',
+              title: 'Synced from Instagram',
+              body: 'Followers and engagement arrive through Meta\u2019s official sign-in, not typed in by the creator.'
+            },
+            {
+              badge: 'Self-reported',
+              tone: 'neutral',
+              title: 'Entered by the creator',
+              body: 'Shown when a profile has not connected Instagram. The label stays on the number wherever it appears.'
+            },
+            {
+              badge: 'Starting price',
+              tone: 'brand',
+              title: 'Set by the creator',
+              body: 'A rate per Reel, Story or post in rupees, next to the format it applies to \u2014 the figure a campaign is agreed on.'
+            }
+          ].map((f, i) => (
+            <Reveal key={f.badge} delay={i * 100}>
+              <Card className="h-full p-6">
+                <Badge tone={f.tone}>{f.badge}</Badge>
+                <h3 className="mt-3 font-semibold">{f.title}</h3>
+                <p className="mt-2 text-sm text-(--color-ink-soft)">{f.body}</p>
               </Card>
             </Reveal>
           ))}

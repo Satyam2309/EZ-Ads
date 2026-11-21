@@ -20,7 +20,19 @@ const paths = {
   eye: <><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></>,
   'eye-off': <><path d="M10.4 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 4" /><path d="M6.3 6.7A16.9 16.9 0 0 0 2 12s3.6 7 10 7a9.8 9.8 0 0 0 4.1-.9" /><path d="m3 3 18 18" /></>,
   lock: <><rect x="4" y="10" width="16" height="11" rx="2.5" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></>,
-  user: <><circle cx="12" cy="8" r="3.5" /><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" /></>
+  user: <><circle cx="12" cy="8" r="3.5" /><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" /></>,
+  home: <><path d="M4 10.5 12 4l8 6.5" /><path d="M6 10v9h12v-9" /></>,
+  bell: <><path d="M18 15V10a6 6 0 1 0-12 0v5l-1.6 2.2a.6.6 0 0 0 .5 1h14.2a.6.6 0 0 0 .5-1L18 15z" /><path d="M10 21a2 2 0 0 0 4 0" /></>,
+  gear: <><circle cx="12" cy="12" r="3" /><path d="M12 2.8l1.4 2.2 2.6-.5.5 2.6 2.2 1.4-1 2.5 1 2.5-2.2 1.4-.5 2.6-2.6-.5L12 21.2l-1.4-2.2-2.6.5-.5-2.6-2.2-1.4 1-2.5-1-2.5 2.2-1.4.5-2.6 2.6.5L12 2.8z" /></>,
+  star: <path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.8L12 3.5z" />,
+  megaphone: <><path d="M4 10v4l12 5V5L4 10z" /><path d="M16 8a4 4 0 0 1 0 8" /><path d="M7 14.5V19" /></>,
+  menu: <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>,
+  close: <><path d="m6 6 12 12" /><path d="m18 6-12 12" /></>,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></>,
+  moon: <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />,
+  grid: <><rect x="3.5" y="3.5" width="7" height="7" rx="2" /><rect x="13.5" y="3.5" width="7" height="7" rx="2" /><rect x="3.5" y="13.5" width="7" height="7" rx="2" /><rect x="13.5" y="13.5" width="7" height="7" rx="2" /></>,
+  inbox: <><path d="M3.5 13.5 6 5h12l2.5 8.5V19h-17v-5.5z" /><path d="M3.5 13.5h4l1 2h7l1-2h4" /></>,
+  filter: <path d="M4 5h16l-6 7v7l-4-2v-5L4 5z" />
 };
 
 export default function Icon({ name, size = 22, className = '', gradientId, gradient = false }) {

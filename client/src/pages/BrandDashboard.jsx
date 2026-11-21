@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import api from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { formatMoney } from '../utils/format.js';
+import Icon from '../components/ui/Icon.jsx';
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 function timeAgo(iso) {
@@ -57,7 +58,7 @@ function useResendVerification(email) {
 const PIPE_COLORS = {
   negotiating:   'bg-amber-400',
   active:        'bg-brand-500',
-  delivered:     'bg-violet-500',
+  delivered:     'bg-accent-500',
   payout_pending:'bg-orange-400',
   paid:          'bg-emerald-500',
   cancelled:     'bg-neutral-300 dark:bg-neutral-600',
@@ -107,13 +108,13 @@ export default function BrandDashboard() {
 
   /* nav items */
   const navItems = [
-    { label: 'Dashboard',       icon: '🏠', to: '/brand/dashboard'  },
-    { label: 'Campaigns',       icon: '📢', to: '/brand/campaigns'  },
-    { label: 'Find Creators',   icon: '👥', to: '/brand/discovery'  },
-    { label: 'Shortlists',      icon: '⭐', to: '/brand/shortlists' },
-    { label: 'Messages',        icon: '💬', to: '/chat',            badge: inbox > 0 ? inbox : null },
-    { label: 'Payments',        icon: '💳', to: '/payments'         },
-    { label: 'Settings',        icon: '⚙️', to: '/settings'         },
+    { label: 'Dashboard',       icon: 'home',      to: '/brand/dashboard'  },
+    { label: 'Campaigns',       icon: 'megaphone', to: '/brand/campaigns'  },
+    { label: 'Find Creators',   icon: 'users',     to: '/brand/discovery'  },
+    { label: 'Shortlists',      icon: 'star',      to: '/brand/shortlists' },
+    { label: 'Messages',        icon: 'message',   to: '/chat',            badge: inbox > 0 ? inbox : null },
+    { label: 'Payments',        icon: 'wallet',    to: '/payments'         },
+    { label: 'Settings',        icon: 'gear',      to: '/settings'         },
   ];
 
   /* initials */
@@ -132,13 +133,13 @@ export default function BrandDashboard() {
           <aside className="space-y-6">
 
             {/* Brand Profile card */}
-            <div className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-4 text-center shadow-xs">
+            <div className="panel p-4 text-center">
               <div className="relative mx-auto h-18 w-18">
                 <div className="h-full w-full overflow-hidden rounded-full ring-2 ring-brand-500/30">
                   {user.avatarUrl ? (
                     <img src={user.avatarUrl} alt={user.displayName} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-brand-600 to-purple-600 text-xl font-bold text-white">
+                    <div className="flex h-full w-full items-center justify-center bg-linear-to-tr from-brand-500 to-accent-500 text-xl font-bold text-white">
                       {initials}
                     </div>
                   )}
@@ -162,20 +163,20 @@ export default function BrandDashboard() {
             </div>
 
             {/* Nav list */}
-            <nav className="space-y-1 rounded-2xl border border-(--color-line) bg-(--color-surface) p-2 shadow-xs">
+            <nav className="panel space-y-1 p-2">
               {navItems.map((item) => {
                 const active = location.pathname === item.to;
                 return (
                   <Link
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-[background-color,color,transform] duration-150 hover:-translate-y-px active:translate-y-0 ${
                       active
-                        ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300'
+                        ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-500/15 dark:bg-brand-500/15 dark:text-brand-200 dark:ring-brand-400/20'
                         : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
                     }`}
                   >
-                    <span className="text-base">{item.icon}</span>
+                    <Icon name={item.icon} size={16} className={active ? 'text-brand-600 dark:text-brand-300' : ''} />
                     <span className="flex-1">{item.label}</span>
                     {item.badge && (
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">
@@ -192,7 +193,7 @@ export default function BrandDashboard() {
           <main className="space-y-6">
 
             {/* ── Hero Card ── */}
-            <div className="relative overflow-hidden rounded-3xl border border-brand-200/50 bg-gradient-to-br from-brand-50/70 via-purple-50/50 to-pink-50/30 p-6 shadow-xs dark:border-brand-900/30 dark:from-brand-950/30 dark:via-purple-950/20 dark:to-transparent">
+            <div className="relative overflow-hidden rounded-3xl border border-brand-200/60 bg-linear-to-br from-brand-50/80 via-(--color-surface) to-accent-50/50 p-6 shadow-(--shadow-card) dark:border-brand-500/20 dark:from-brand-950/35 dark:via-(--color-surface) dark:to-accent-950/10">
 
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -232,41 +233,41 @@ export default function BrandDashboard() {
                   ))
                 ) : (
                   <>
-                    <div className="rounded-2xl border border-white/60 bg-white/70 p-3.5 backdrop-blur dark:border-white/5 dark:bg-white/5">
+                    <div className="metric">
                       <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
-                        <span className="text-brand-500">📢</span> Campaigns
+                        <Icon name="megaphone" size={13} className="text-brand-500" /> Campaigns
                       </div>
-                      <div className="mt-1 text-xl font-extrabold">{t.campaigns ?? 0}</div>
+                      <div className="figure mt-1 text-xl">{t.campaigns ?? 0}</div>
                       <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
                         {t.campaignsLive ?? 0} live · {t.campaignsDraft ?? 0} draft
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/60 bg-white/70 p-3.5 backdrop-blur dark:border-white/5 dark:bg-white/5">
+                    <div className="metric">
                       <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
-                        <span className="text-purple-500">📥</span> Applications
+                        <Icon name="inbox" size={13} className="text-brand-500" /> Applications
                       </div>
-                      <div className="mt-1 text-xl font-extrabold">{t.applicationsPending ?? 0}</div>
+                      <div className="figure mt-1 text-xl">{t.applicationsPending ?? 0}</div>
                       <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
                         {t.applicationsTotal ?? 0} total received
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/60 bg-white/70 p-3.5 backdrop-blur dark:border-white/5 dark:bg-white/5">
+                    <div className="metric">
                       <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
-                        <span className="text-pink-500">⭐</span> Shortlisted
+                        <Icon name="star" size={13} className="text-accent-500" /> Shortlisted
                       </div>
-                      <div className="mt-1 text-xl font-extrabold">{t.shortlistedCreators ?? 0}</div>
+                      <div className="figure mt-1 text-xl">{t.shortlistedCreators ?? 0}</div>
                       <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
                         {t.shortlistLists ?? 0} list{t.shortlistLists === 1 ? '' : 's'}
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/60 bg-white/70 p-3.5 backdrop-blur dark:border-white/5 dark:bg-white/5">
+                    <div className="metric">
                       <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
-                        <span className="text-emerald-500">💰</span> Budget
+                        <Icon name="wallet" size={13} className="text-emerald-500" /> Budget
                       </div>
-                      <div className="mt-1 text-xl font-extrabold">{formatMoney(data?.spend?.total ?? 0)}</div>
+                      <div className="figure mt-1 text-xl">{formatMoney(data?.spend?.total ?? 0)}</div>
                       <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
                         Committed spend
                       </div>
@@ -293,10 +294,10 @@ export default function BrandDashboard() {
             <div className="grid gap-6 lg:grid-cols-2">
 
               {/* Campaign Pipeline */}
-              <div className="rounded-3xl border border-(--color-line) bg-(--color-surface) p-6 shadow-xs">
+              <div className="panel p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="flex items-center gap-2 font-bold">
-                    <span className="text-brand-500">📊</span> Campaign Pipeline
+                    <span className="icon-chip h-7 w-7"><Icon name="chart" size={15} className="text-brand-500" /></span> Campaign Pipeline
                   </h2>
                   <span className="font-mono text-xs text-(--color-ink-soft)">
                     {pipeTotal} agreement{pipeTotal === 1 ? '' : 's'}
@@ -359,9 +360,9 @@ export default function BrandDashboard() {
               </div>
 
               {/* Quick Creator Discovery */}
-              <div className="rounded-3xl border border-(--color-line) bg-(--color-surface) p-6 shadow-xs">
+              <div className="panel p-6">
                 <div className="flex items-center gap-2 font-bold">
-                  <span className="text-purple-500">🔍</span> Find Creators
+                  <span className="icon-chip h-7 w-7"><Icon name="search" size={15} className="text-brand-500" /></span> Find Creators
                 </div>
                 <p className="mt-1 text-xs text-(--color-ink-soft)">
                   Browse by niche or search by name / handle.
@@ -415,10 +416,10 @@ export default function BrandDashboard() {
             <div className="grid gap-6 lg:grid-cols-2">
 
               {/* Recent Activity */}
-              <div className="rounded-3xl border border-(--color-line) bg-(--color-surface) p-6 shadow-xs">
+              <div className="panel p-6">
                 <div className="flex items-center justify-between">
                   <h2 className="flex items-center gap-2 font-bold">
-                    <span className="text-orange-500">⚡</span> Recent Activity
+                    <span className="icon-chip h-7 w-7"><Icon name="bolt" size={15} className="text-accent-500" /></span> Recent Activity
                   </h2>
                   <Link to="/notifications" className="text-xs font-semibold text-brand-600 hover:underline dark:text-brand-400">
                     View all
@@ -470,10 +471,10 @@ export default function BrandDashboard() {
 
               {/* Brand Setup Checklist */}
               {(!loading && checklist.length > 0 && doneCount < checklist.length) || loading ? (
-                <div className="rounded-3xl border border-(--color-line) bg-(--color-surface) p-6 shadow-xs">
+                <div className="panel p-6">
                   <div className="flex items-center justify-between gap-3">
                     <h2 className="flex items-center gap-2 font-bold">
-                      <span className="text-emerald-500">🛡</span> Finish Setting Up
+                      <span className="icon-chip h-7 w-7"><Icon name="shield" size={15} className="text-emerald-500" /></span> Finish Setting Up
                     </h2>
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
                       checkPct === 100
@@ -487,7 +488,7 @@ export default function BrandDashboard() {
                   {/* Progress bar */}
                   <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-(--color-elevated)">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-brand-500 to-purple-500 transition-all duration-500"
+                      className="h-full rounded-full bg-linear-to-r from-brand-500 to-accent-500 transition-all duration-500"
                       style={{ width: `${checkPct}%` }}
                     />
                   </div>

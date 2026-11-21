@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import Icon from '../components/ui/Icon.jsx';
 
 function fmt(n) {
   if (n === null || n === undefined || isNaN(n)) return '—';
@@ -172,7 +173,7 @@ export default function InfluencerDashboard() {
             <div className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-4 text-center shadow-xs">
               <div className="relative mx-auto h-18 w-18">
                 <div className="h-full w-full overflow-hidden rounded-full ring-2 ring-brand-500/30">
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-brand-600 to-purple-600 text-xl font-bold text-white">
+                  <div className="flex h-full w-full items-center justify-center bg-linear-to-tr from-brand-500 to-accent-500 text-xl font-bold text-white">
                     {(user?.displayName || 'Creator')
                       .split(' ')
                       .map((w) => w[0])
@@ -223,7 +224,7 @@ export default function InfluencerDashboard() {
             {/* Top Row: Welcome Banner + Follower Growth */}
             <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
               {/* Welcome Card */}
-              <div className="relative overflow-hidden rounded-3xl border border-brand-200/50 bg-gradient-to-br from-brand-50/70 via-purple-50/50 to-pink-50/30 p-6 shadow-xs dark:border-brand-900/30 dark:from-brand-950/30 dark:via-purple-950/20 dark:to-transparent">
+              <div className="relative overflow-hidden rounded-3xl border border-brand-200/60 bg-linear-to-br from-brand-50/80 via-(--color-surface) to-accent-50/50 p-6 shadow-(--shadow-card) dark:border-brand-500/20 dark:from-brand-950/35 dark:via-(--color-surface) dark:to-accent-950/10">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h1 className="text-2xl font-bold tracking-tight">
@@ -242,7 +243,7 @@ export default function InfluencerDashboard() {
                       <button
                         onClick={handleConnect}
                         disabled={connecting}
-                        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-transform hover:scale-102 hover:shadow-md disabled:opacity-60"
+                        className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-brand-500 to-accent-500 px-4 py-2 text-xs font-bold text-white shadow-[0_10px_22px_-14px_var(--color-brand-600)] transition-transform hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:opacity-60"
                       >
                         <span>📸</span> {connecting ? 'Connecting…' : 'Connect Instagram'}
                       </button>
@@ -254,7 +255,7 @@ export default function InfluencerDashboard() {
                 <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <div className="rounded-2xl border border-white/60 bg-white/70 p-3.5 backdrop-blur dark:border-white/5 dark:bg-white/5">
                     <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
-                      <span className="text-pink-500">📸</span> Followers
+                      <Icon name="instagram" size={13} className="text-accent-500" /> Followers
                     </div>
                     <div className="mt-1 text-xl font-extrabold">{fmt(followersCount)}</div>
                     <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
@@ -274,7 +275,7 @@ export default function InfluencerDashboard() {
 
                   <div className="rounded-2xl border border-white/60 bg-white/70 p-3.5 backdrop-blur dark:border-white/5 dark:bg-white/5">
                     <div className="flex items-center gap-1.5 text-xs text-(--color-ink-soft)">
-                      <span className="text-purple-500">((•))</span> Avg. Reach
+                      <Icon name="chart" size={13} className="text-brand-500" /> Avg. Reach
                     </div>
                     <div className="mt-1 text-xl font-extrabold">{totalReach ? fmt(totalReach) : '—'}</div>
                     <div className="mt-0.5 text-[11px] font-semibold text-(--color-ink-soft)">
@@ -544,7 +545,7 @@ export default function InfluencerDashboard() {
                             </div>
                             <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
                               <div
-                                className="h-full rounded-full bg-pink-500"
+                                className="h-full rounded-full bg-accent-500"
                                 style={{ width: `${audienceGender.F || 0}%` }}
                               />
                             </div>
@@ -561,7 +562,7 @@ export default function InfluencerDashboard() {
                               </div>
                               <div className="mt-1 h-2 overflow-hidden rounded-full bg-(--color-elevated)">
                                 <div
-                                  className="h-full rounded-full bg-purple-500"
+                                  className="h-full rounded-full bg-brand-500"
                                   style={{ width: `${audienceGender.U}%` }}
                                 />
                               </div>

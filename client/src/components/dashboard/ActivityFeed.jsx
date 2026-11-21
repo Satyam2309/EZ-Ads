@@ -103,7 +103,7 @@ export function ActivityFeed({ items = null, loading, title = 'Recent activity',
 const PIPE_TONES = {
   negotiating: 'bg-amber-400',
   active: 'bg-brand-500',
-  delivered: 'bg-violet-500',
+  delivered: 'bg-accent-500',
   payout_pending: 'bg-accent-500',
   paid: 'bg-emerald-500',
   cancelled: 'bg-neutral-300'

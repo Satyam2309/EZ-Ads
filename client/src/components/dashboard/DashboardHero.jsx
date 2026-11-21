@@ -53,15 +53,19 @@ function Tile({ tile, index }) {
   const inner = (
     <>
       <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-(--color-ink-soft)">{tile.label}</p>
-        {tile.icon && <Icon name={tile.icon} gradient size={18} />}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-ink-soft)">{tile.label}</p>
+        {tile.icon && (
+          <span className="icon-chip h-7 w-7">
+            <Icon name={tile.icon} size={15} className="text-brand-500 dark:text-brand-300" />
+          </span>
+        )}
       </div>
-      <p className="font-(family:--font-display) mt-2 text-3xl font-extrabold tracking-tight">{tile.value}</p>
-      {tile.hint && <p className="mt-1 text-xs text-(--color-ink-soft)">{tile.hint}</p>}
+      <p className="figure mt-2.5 text-3xl tracking-tight">{tile.value}</p>
+      {tile.hint && <p className="mt-1 text-[11px] text-(--color-ink-soft)">{tile.hint}</p>}
     </>
   );
   const cls =
-    'tile-link block rounded-(--radius-card) border border-(--color-line) bg-(--color-surface)/85 p-4 backdrop-blur transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-card-hover)';
+    'tile-link group block rounded-(--radius-card) border border-(--color-line) bg-(--color-surface)/85 p-4 shadow-[0_1px_0_rgb(255_255_255/0.5)_inset] backdrop-blur transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:scale-[1.015] hover:border-brand-500/35 hover:shadow-(--shadow-card-hover) dark:shadow-[0_1px_0_rgb(255_255_255/0.05)_inset]';
   return (
     <div key={tile.key} className="reveal" style={{ '--reveal-delay': `${index * 90}ms`, opacity: 1 }}>
       {tile.to ? (
@@ -81,7 +85,7 @@ export default function DashboardHero({ eyebrow, title, subtitle, tiles = [], ch
   const webgl = useWebgl();
   const idleReady = useIdleReady();
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-(--color-line) bg-linear-to-br from-(--color-surface) via-(--color-surface) to-(--color-elevated)">
+    <section className="panel relative overflow-hidden">
       <div className="aurora opacity-40" aria-hidden />
       <div className="grid-overlay" aria-hidden />
       <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
@@ -100,7 +104,7 @@ export default function DashboardHero({ eyebrow, title, subtitle, tiles = [], ch
           {children && <div className="mt-6">{children}</div>}
         </div>
 
-        <div className="relative h-64 rounded-2xl border border-(--color-line) bg-(--color-canvas)/40 sm:h-80 lg:h-[22rem]">
+        <div className="relative h-64 overflow-hidden rounded-2xl border border-(--color-line) bg-(--color-canvas)/50 shadow-[0_1px_0_rgb(255_255_255/0.5)_inset] sm:h-80 lg:h-[22rem] dark:shadow-[0_1px_0_rgb(255_255_255/0.05)_inset]">
           <Suspense fallback={<OrbFallback />}>
             {webgl && idleReady ? <HeroScene className="h-full w-full" /> : <OrbFallback />}
           </Suspense>

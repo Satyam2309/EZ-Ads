@@ -6,9 +6,22 @@ const tones = {
   danger: 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/15 dark:text-red-300 dark:ring-red-500/40'
 };
 
-export default function Badge({ tone = 'neutral', children, className = '' }) {
+const DOTS = {
+  neutral: 'bg-(--color-ink-soft)',
+  brand: 'bg-brand-500',
+  success: 'bg-emerald-500',
+  warning: 'bg-amber-500',
+  danger: 'bg-red-500'
+};
+
+/** Small status label. `dot` adds the coloured pip used on live state chips. */
+export default function Badge({ tone = 'neutral', children, className = '', dot = false }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${tones[tone]} ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset
+        shadow-[0_1px_0_rgb(255_255_255/0.35)_inset] dark:shadow-[0_1px_0_rgb(255_255_255/0.06)_inset] ${tones[tone]} ${className}`}
+    >
+      {dot && <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${DOTS[tone]}`} />}
       {children}
     </span>
   );

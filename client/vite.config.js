@@ -27,7 +27,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_TARGET || 'https://ezads.co.in',
+        // `npm run dev` starts a local API on 5000, so that is the default.
+        // Point VITE_API_TARGET at the deployed API to test against it instead —
+        // the server's origin guard rejects a localhost origin, so logging in
+        // against production from here can never work.
+        target: process.env.VITE_API_TARGET || 'http://localhost:5000',
         changeOrigin: true,
         secure: false
       }
