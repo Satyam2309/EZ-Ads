@@ -5,6 +5,7 @@ import Badge from '../components/ui/Badge.jsx';
 import Card from '../components/ui/Card.jsx';
 import Icon from '../components/ui/Icon.jsx';
 import WorkflowAdSection from '../components/WorkflowAdSection.jsx';
+import { BrandMark } from '../components/BrandLogo.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 /* Per-role hero CTA. Guests see the signup flow; a logged-in brand gets
@@ -443,7 +444,9 @@ export default function Home() {
           <div className="glass relative overflow-hidden rounded-3xl px-8 py-16 text-center">
             <div className="aurora opacity-60" aria-hidden />
             <div className="relative">
-              <Icon name="bolt" gradient size={40} className="mx-auto" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-(--color-line) bg-(--color-surface) shadow-sm">
+                <BrandMark size={36} />
+              </div>
               <h2 className="font-(family:--font-display) mt-4 text-3xl font-extrabold sm:text-4xl">
                 Ready to run your <span className="text-shine">first campaign</span>?
               </h2>

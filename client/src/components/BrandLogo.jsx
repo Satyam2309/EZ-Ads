@@ -45,3 +45,27 @@ export default function BrandLogo({ className = '', size = 'md' }) {
     </span>
   );
 }
+
+/**
+ * Brand mark only (interlocking rings + arrow, no wordmark/name).
+ */
+export function BrandMark({ size = 48, className = '' }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 48"
+      width={size}
+      height={size}
+      className={`shrink-0 select-none ${className}`}
+      aria-hidden="true"
+    >
+      <g transform="translate(-3.28 2) scale(0.88)" fill="none">
+        <circle cx="40" cy="29" r="13" stroke="#ea4f15" strokeWidth="6.2" />
+        <circle cx="22" cy="29" r="13" stroke="#1b6fe3" strokeWidth="6.2" />
+        <path d="M33.9 40.48A13 13 0 0 1 28.74 35.5" stroke="#ea4f15" strokeWidth="6.2" strokeLinecap="round" />
+        <path d="M14 36 33 27 49 14" stroke="#1b6fe3" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M55 8 52.88 17.2 45.8 10.1Z" fill="#1b6fe3" />
+      </g>
+    </svg>
+  );
+}
