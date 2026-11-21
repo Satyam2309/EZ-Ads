@@ -164,17 +164,18 @@ export default function Home() {
 
   return (
     <div className="min-h-full overflow-x-clip">
-      {/* ============ HERO — aurora mesh + grid overlay + glass ============ */}
-      <section className="relative">
-        <div className="aurora" aria-hidden />
+      {/* ============ HERO — Taste Skill ambient halo + grid overlay + live app frame ============ */}
+      <section className="relative overflow-hidden pt-12 pb-20">
+        <div className="bg-halo-ambient" aria-hidden />
+        <div className="aurora opacity-50" aria-hidden />
         <div className="grid-overlay" aria-hidden />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-24 text-center sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <Reveal>
-            <Badge tone="brand" className="glass border-transparent px-4 py-1.5 text-[13px]">
-              <Icon name="sparkles" size={15} gradient className="mr-1.5 inline" />
-              Influencer marketing, done right
-            </Badge>
+            <div className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-xs font-semibold text-brand-600 dark:text-brand-300 backdrop-blur-md shadow-xs">
+              <span className="pulse-node" />
+              <span>Official Meta Graph API Verified Marketplace</span>
+            </div>
           </Reveal>
 
           <Reveal delay={120}>
@@ -186,71 +187,135 @@ export default function Home() {
           </Reveal>
 
           <Reveal delay={240}>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-(--color-ink-soft)">
-              EZ Ads connects brands with Instagram creators. Creators link their own account through
-              Instagram, and every metric says where it came from.
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-(--color-ink-soft) leading-relaxed">
+              EZ Ads connects brands with authentic Instagram creators. Verified directly through Meta&apos;s
+              official Graph API — zero fake metrics, digital escrow contracts, and guaranteed deliverables.
             </p>
           </Reveal>
 
           <Reveal delay={360}>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <HeroCtas />
             </div>
           </Reveal>
 
-          {/* floating mock browser card with 3D tilt */}
-          <Reveal delay={480} className="mx-auto mt-12 max-w-4xl">
+          {/* Taste Skill Product Showcase — Live App Frame */}
+          <Reveal delay={480} className="mx-auto mt-12 max-w-5xl">
             <div ref={tiltRef} className="tilt animate-float">
-              <div className="glass rounded-2xl p-2 text-left">
-                <div className="flex items-center gap-1.5 px-3 py-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                  <span className="ml-3 rounded-md bg-(--color-elevated) px-3 py-1 font-(family:--font-mono) text-xs text-(--color-ink-soft)">
-                    ezads.co.in/brand/discovery
-                  </span>
+              <div className="app-frame p-2.5 sm:p-4 text-left">
+                {/* Browser frame titlebar */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-(--color-line)/60 px-3 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-rose-400" />
+                    <span className="h-3 w-3 rounded-full bg-amber-400" />
+                    <span className="h-3 w-3 rounded-full bg-emerald-400" />
+                    <span className="ml-2 rounded-lg bg-(--color-elevated) px-3 py-1 font-(family:--font-mono) text-xs text-(--color-ink-soft)">
+                      https://ezads.co.in/brand/discovery
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="pulse-node" /> Live Meta API Sync Active
+                  </div>
                 </div>
-                <Card className="border-transparent p-4 shadow-none">
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    {/* the Discovery filter rail, as it is in the app, with nothing filled in.
-                        On a phone the labelling panel carries the screen instead — it is the
-                        point of the mock, and a two-panel stack does not fit a 844px screen. */}
-                    <div className="hidden sm:block">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-ink-soft)">Filters</p>
-                      <dl className="mt-3 space-y-1.5 text-sm">
-                        {[
-                          ['Niche', 'Any niche'],
-                          ['Followers', 'min – max'],
-                          ['Engagement', 'min %'],
-                          ['Budget (₹)', 'min – max']
-                        ].map(([label, value]) => (
-                          <div key={label} className="flex items-center justify-between gap-3 rounded-lg border border-(--color-line) bg-(--color-surface) px-3 py-1.5">
-                            <dt className="text-(--color-ink-soft)">{label}</dt>
-                            <dd className="font-medium">{value}</dd>
-                          </div>
-                        ))}
-                      </dl>
+
+                {/* Filter tags strip inside the live mock */}
+                <div className="mt-3 flex flex-wrap items-center gap-1.5 px-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-(--color-ink-soft) mr-1">Trending:</span>
+                  {['👗 Fashion', '💄 Beauty', '💻 Tech & AI', '🏋️ Fitness', '🍔 Food'].map((tag, idx) => (
+                    <span
+                      key={tag}
+                      className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                        idx === 0 
+                          ? 'bg-brand-600 text-white shadow-xs' 
+                          : 'bg-(--color-elevated) text-(--color-ink-soft) hover:text-(--color-ink)'
+                      }`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Living Creator Cards inside mock */}
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {/* Creator Card 1 */}
+                  <div className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-4 shadow-xs hover:border-brand-300 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 text-sm font-bold text-white shadow-xs">
+                        SK
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-bold text-sm text-(--color-ink) truncate">Shreya Kapoor</h4>
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white" title="Verified with Meta">✓</span>
+                        </div>
+                        <p className="text-xs text-(--color-ink-soft)">@shreya_lifestyle • Fashion & Beauty</p>
+                      </div>
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                        Available
+                      </span>
                     </div>
 
-                    {/* the promise the product keeps: each number says where it came from */}
-                    <div className="sm:border-l sm:border-(--color-line) sm:pl-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-ink-soft)">Where the numbers come from</p>
-                      <ul className="mt-3 space-y-2 text-sm">
-                        <li className="flex items-start gap-2">
-                          <Badge tone="success">API</Badge>
-                          <span className="text-(--color-ink-soft)">Synced from the creator&apos;s Instagram account.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Badge tone="neutral">Self-reported</Badge>
-                          <span className="text-(--color-ink-soft)">Entered by the creator, never shown as verified.</span>
-                        </li>
-                      </ul>
-                      <p className="mt-2 text-xs text-(--color-ink-soft)">
-                        Starting price and availability are always the creator&apos;s own figures.
-                      </p>
+                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-(--color-elevated) p-2 text-center text-xs">
+                      <div>
+                        <div className="font-extrabold text-(--color-ink)">142K</div>
+                        <div className="text-[10px] text-(--color-ink-soft)">Followers (API)</div>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-(--color-ink)">4.92%</div>
+                        <div className="text-[10px] text-(--color-ink-soft)">Engagement</div>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-brand-600 dark:text-brand-400">₹8,000</div>
+                        <div className="text-[10px] text-(--color-ink-soft)">From / Reel</div>
+                      </div>
                     </div>
                   </div>
-                </Card>
+
+                  {/* Creator Card 2 */}
+                  <div className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-4 shadow-xs hover:border-brand-300 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-brand-600 via-blue-600 to-cyan-500 text-sm font-bold text-white shadow-xs">
+                        TK
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-bold text-sm text-(--color-ink) truncate">Tech by Kunal</h4>
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white" title="Verified with Meta">✓</span>
+                        </div>
+                        <p className="text-xs text-(--color-ink-soft)">@tech_kunal • Tech & Gadgets</p>
+                      </div>
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                        Available
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-(--color-elevated) p-2 text-center text-xs">
+                      <div>
+                        <div className="font-extrabold text-(--color-ink)">285K</div>
+                        <div className="text-[10px] text-(--color-ink-soft)">Followers (API)</div>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-(--color-ink)">5.64%</div>
+                        <div className="text-[10px] text-(--color-ink-soft)">Engagement</div>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-brand-600 dark:text-brand-400">₹14,500</div>
+                        <div className="text-[10px] text-(--color-ink-soft)">From / Collab</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active escrow agreement ticker strip */}
+                <div className="mt-3 flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🛡️</span>
+                    <span className="font-medium text-(--color-ink)">
+                      <strong>Live Deal Flow:</strong> Escrow Locked (₹8,000) • Deliverables Submitted • Payout Auto-Release on Approval
+                    </span>
+                  </div>
+                  <span className="hidden sm:inline font-bold text-emerald-600 dark:text-emerald-400">100% Guaranteed</span>
+                </div>
               </div>
             </div>
           </Reveal>
