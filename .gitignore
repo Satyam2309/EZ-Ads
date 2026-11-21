@@ -39,3 +39,9 @@ screenshots/
 # Deploy bundle produced by `npm run pack:deploy`
 deploy.zip
 .deploy-stage/
+
+# Agent skills installed locally (`npx skills add`) and their scratch captures
+.agents/
+.claude/
+.taste-skill/
+skills-lock.json
