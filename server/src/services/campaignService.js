@@ -3,13 +3,13 @@
  * Owns: state-transition legality, counters maintenance, commission math,
  * and the invariants that money fields must never be trusted from the client.
  */
-import { Campaign, CampaignApplication, CampaignInvitation, CampaignAgreement, InfluencerProfile, User } from '../models/index.js';
+import { Campaign, CampaignApplication, CampaignInvitation, CampaignAgreement, InfluencerProfile, BrandProfile, User } from '../models/index.js';
 import { AppError, notFound, forbidden, conflict, badRequest } from '../utils/errors.js';
 import { notify } from './notificationService.js';
 import { recordSimulatedPayout, announcePayout } from './paymentService.js';
 
 /** Best-effort notification wrapper — workflow must not fail on notify slippage. */
-const gentNotify = (...args) => { void notify(...args).catch(() => {}); };
+const gentNotify = (...args) => { void notify(...args).catch(() => { }); };
 
 export const CAMPAIGN_TRANSITIONS = {
   draft: ['published'],
@@ -80,21 +80,70 @@ export async function listBrandCampaigns(brandId, { status, page = 1, limit = 20
   return { items, total, page, pages: Math.ceil(total / limit) || 1 };
 }
 
-/** Public discovery feed for creators: published only, whitelisted fields. */
-export async function listOpenCampaigns({ niche, page = 1, limit = 12 }) {
+function escapeRegex(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const OPEN_CAMPAIGN_SORTS = {
+  newest: { createdAt: -1 },
+  budget_high: { 'budget.total': -1, createdAt: -1 },
+  budget_low: { 'budget.total': 1, createdAt: -1 },
+  deadline: { applicationDeadline: 1, createdAt: -1 }
+};
+
+/** Public discovery feed for creators: published only, whitelisted fields + brand profile summary. */
+export async function listOpenCampaigns({ niche, q: searchQ, sort = 'newest', minBudget, maxBudget, page = 1, limit = 12 }) {
   const q = { status: 'published' };
   if (niche) q.niche = String(niche).toLowerCase().trim();
+  if (searchQ && String(searchQ).trim()) {
+    const rx = new RegExp(escapeRegex(String(searchQ).trim().slice(0, 120)), 'i');
+    q.$or = [
+      { title: rx },
+      { description: rx },
+      { productInfo: rx },
+      { niche: rx },
+      { objective: rx }
+    ];
+  }
+  const budgetRange = {};
+  if (minBudget !== undefined && minBudget !== '') {
+    const minN = Number(minBudget);
+    if (Number.isFinite(minN) && minN >= 0) budgetRange.$gte = minN;
+  }
+  if (maxBudget !== undefined && maxBudget !== '') {
+    const maxN = Number(maxBudget);
+    if (Number.isFinite(maxN) && maxN >= 0) budgetRange.$lte = maxN;
+  }
+  if (Object.keys(budgetRange).length) q['budget.total'] = budgetRange;
+
   page = Math.max(1, Number(page) || 1);
   limit = Math.min(50, Math.max(1, Number(limit) || 12));
-  const [items, total] = await Promise.all([
+  const sortOrder = OPEN_CAMPAIGN_SORTS[sort] || OPEN_CAMPAIGN_SORTS.newest;
+
+  const [docs, total] = await Promise.all([
     Campaign.find(q)
-      .sort({ createdAt: -1 })
+      .sort(sortOrder)
       .skip((page - 1) * limit)
       .limit(limit)
-      .select('title description niche budget deliverables applicationDeadline startDate endDate brand createdAt')
-      .populate('brand', 'displayName avatarUrl brandCompanyName'),
+      .select('title description productInfo objective targetAudience niche requiredPlatforms budget deliverables applicationDeadline startDate endDate stats brand createdAt')
+      .populate('brand', 'displayName avatarUrl'),
     Campaign.countDocuments(q)
   ]);
+
+  const brandIds = [...new Set(docs.map((c) => c.brand?._id).filter(Boolean))];
+  const profiles = brandIds.length
+    ? await BrandProfile.find({ user: { $in: brandIds } })
+      .select('user companyName industry website logoUrl contact.city contact.country about verified')
+      .lean()
+    : [];
+  const brandByUser = new Map(profiles.map((p) => [String(p.user), p]));
+
+  const items = docs.map((doc) => {
+    const o = doc.toObject();
+    o.brandProfile = brandByUser.get(String(o.brand?._id || o.brand)) || null;
+    return o;
+  });
+
   return { items, total, page, pages: Math.ceil(total / limit) || 1 };
 }
 

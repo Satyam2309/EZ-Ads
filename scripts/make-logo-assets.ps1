@@ -1,15 +1,5 @@
-# Regenerates the brand lockup images from the supplied artwork.
-#
-#   materials/app logo/WebHeaderLogo.png  (mark + wordmark + tagline, on white)
-#     -> client/public/brand-lockup.png        colours untouched, white lifted to transparency
-#     -> client/public/brand-lockup-plate.png  the artwork exactly as supplied, white included
-#
-# Nothing is redrawn or recoloured: both files are plain downscales of the supplied
-# PNG. The first only un-composites the white background (alpha = 255 - min(r,g,b),
-# colour rescaled by that alpha), which is mathematically exact for art drawn on a
-# white plate. The second keeps the white background, so the black tagline and
-# network dots stay visible on the dark canvas — recolouring them to white would
-# change the brand colours.
+# Regenerates all brand lockup and mark assets from the supplied artwork.
+# Generates transparent-background PNGs tuned for light and dark themes.
 #
 # Run: npm run logo:build
 param(
@@ -22,24 +12,21 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $srcPath = (Resolve-Path $Source).Path
-$img = [System.Drawing.Image]::FromFile($srcPath)
-$w = $Width
-$h = [int][Math]::Round($img.Height * $Width / $img.Width)
+$src = [System.Drawing.Bitmap]::FromFile($srcPath)
+Write-Output "Source: $srcPath ($($src.Width)x$($src.Height))"
 
-# Downscale only. The lockup is shown at 36-48px tall, so 560px wide (187px tall)
-# still covers 3x retina while keeping the file small.
+if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
+
+# 1. Full Lockup (Light & Dark)
+$w = $Width
+$h = [int][Math]::Round($src.Height * $w / $src.Width)
+
 $base = New-Object System.Drawing.Bitmap($w, $h, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
 $g = [System.Drawing.Graphics]::FromImage($base)
 $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
 $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
-$g.Clear([System.Drawing.Color]::White)
-$g.DrawImage($img, 0, 0, $w, $h)
+$g.DrawImage($src, 0, 0, $w, $h)
 $g.Dispose()
-$img.Dispose()
-
-if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
-$platePath = Join-Path $OutDir 'brand-lockup-plate.png'
-$base.Save($platePath, [System.Drawing.Imaging.ImageFormat]::Png)
 
 $rect = New-Object System.Drawing.Rectangle(0, 0, $w, $h)
 $read = $base.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
@@ -49,25 +36,176 @@ $base.UnlockBits($read)
 $base.Dispose()
 
 $light = New-Object byte[] $pixels.Length
-$transparent = 0
+$dark = New-Object byte[] $pixels.Length
+
 for ($i = 0; $i -lt $pixels.Length; $i += 4) {
-  $b = [int]$pixels[$i]; $gr = [int]$pixels[$i + 1]; $r = [int]$pixels[$i + 2]
-  $min = [Math]::Min($r, [Math]::Min($gr, $b))
-  $a = 255 - $min
-  if ($a -le 0) { $transparent++; continue }   # pure white -> fully transparent
-  $light[$i] = [byte][Math]::Min(255, [int](($b - $min) * 255 / $a))
-  $light[$i + 1] = [byte][Math]::Min(255, [int](($gr - $min) * 255 / $a))
-  $light[$i + 2] = [byte][Math]::Min(255, [int](($r - $min) * 255 / $a))
-  $light[$i + 3] = [byte]$a
+    $b = [double]$pixels[$i]
+    $gr = [double]$pixels[$i + 1]
+    $r = [double]$pixels[$i + 2]
+    
+    $min = [Math]::Min($r, [Math]::Min($gr, $b))
+    
+    if ($min -ge 249.0) {
+        $light[$i + 3] = 0
+        $dark[$i + 3] = 0
+        continue
+    }
+    
+    $bgVal = 254.0
+    $alphaNorm = [Math]::Max(0.0, [Math]::Min(1.0, ($bgVal - $min) / $bgVal))
+    if ($alphaNorm -lt 0.04) {
+        $light[$i + 3] = 0
+        $dark[$i + 3] = 0
+        continue
+    }
+    
+    $aByte = [byte][Math]::Round($alphaNorm * 255.0)
+    
+    $origB = [Math]::Max(0.0, [Math]::Min(255.0, ($b - $bgVal * (1.0 - $alphaNorm)) / $alphaNorm))
+    $origGr = [Math]::Max(0.0, [Math]::Min(255.0, ($gr - $bgVal * (1.0 - $alphaNorm)) / $alphaNorm))
+    $origR = [Math]::Max(0.0, [Math]::Min(255.0, ($r - $bgVal * (1.0 - $alphaNorm)) / $alphaNorm))
+    
+    # Light Mode
+    $light[$i] = [byte][Math]::Round($origB)
+    $light[$i + 1] = [byte][Math]::Round($origGr)
+    $light[$i + 2] = [byte][Math]::Round($origR)
+    $light[$i + 3] = $aByte
+    
+    # Dark Mode
+    $maxOrig = [Math]::Max($origR, [Math]::Max($origGr, $origB))
+    if ($maxOrig -lt 68.0) {
+        # Crisp white for tagline and network nodes
+        $dark[$i] = 255
+        $dark[$i + 1] = 255
+        $dark[$i + 2] = 255
+        $dark[$i + 3] = $aByte
+    } else {
+        if ($origB -gt $origR + 30.0) {
+            $dark[$i] = [byte][Math]::Min(255.0, $origB * 1.15 + 15.0)
+            $dark[$i + 1] = [byte][Math]::Min(255.0, $origGr * 1.15 + 10.0)
+            $dark[$i + 2] = [byte][Math]::Min(255.0, $origR * 1.15)
+        } elseif ($origR -gt $origB + 30.0) {
+            $dark[$i] = [byte][Math]::Min(255.0, $origB * 1.1)
+            $dark[$i + 1] = [byte][Math]::Min(255.0, $origGr * 1.1 + 10.0)
+            $dark[$i + 2] = [byte][Math]::Min(255.0, $origR * 1.05 + 5.0)
+        } else {
+            $dark[$i] = [byte][Math]::Round($origB)
+            $dark[$i + 1] = [byte][Math]::Round($origGr)
+            $dark[$i + 2] = [byte][Math]::Round($origR)
+        }
+        $dark[$i + 3] = $aByte
+    }
 }
 
-$cut = New-Object System.Drawing.Bitmap($w, $h, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-$write = $cut.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::WriteOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-[System.Runtime.InteropServices.Marshal]::Copy($light, 0, $write.Scan0, $light.Length)
-$cut.UnlockBits($write)
-$cutPath = Join-Path $OutDir 'brand-lockup.png'
-$cut.Save($cutPath, [System.Drawing.Imaging.ImageFormat]::Png)
-$cut.Dispose()
+$lightBmp = New-Object System.Drawing.Bitmap($w, $h, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$w1 = $lightBmp.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::WriteOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+[System.Runtime.InteropServices.Marshal]::Copy($light, 0, $w1.Scan0, $light.Length)
+$lightBmp.UnlockBits($w1)
+$lightBmp.Save((Join-Path $OutDir "brand-lockup.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+$lightBmp.Dispose()
 
-"{0} -> {1}x{2}, {3:P1} of pixels transparent" -f $srcPath, $w, $h, ($transparent / ($w * $h)) | Write-Output
-Get-ChildItem $cutPath, $platePath | ForEach-Object { "{0}  {1:N1} KB" -f $_.Name, ($_.Length / 1KB) } | Write-Output
+$darkBmp = New-Object System.Drawing.Bitmap($w, $h, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$w2 = $darkBmp.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::WriteOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+[System.Runtime.InteropServices.Marshal]::Copy($dark, 0, $w2.Scan0, $dark.Length)
+$darkBmp.UnlockBits($w2)
+$darkBmp.Save((Join-Path $OutDir "brand-lockup-dark.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+$darkBmp.Dispose()
+
+# 2. Brand Mark Only
+$cropX = 130
+$cropY = 160
+$cropW = 875 - $cropX
+$cropH = 585 - $cropY
+
+$markTargetW = 400
+$markTargetH = [int][Math]::Round($cropH * $markTargetW / $cropW)
+
+$markBase = New-Object System.Drawing.Bitmap($markTargetW, $markTargetH, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$gm = [System.Drawing.Graphics]::FromImage($markBase)
+$gm.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+$gm.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+$gm.DrawImage($src, (New-Object System.Drawing.Rectangle(0, 0, $markTargetW, $markTargetH)), (New-Object System.Drawing.Rectangle($cropX, $cropY, $cropW, $cropH)), [System.Drawing.GraphicsUnit]::Pixel)
+$gm.Dispose()
+$src.Dispose()
+
+$markRect = New-Object System.Drawing.Rectangle(0, 0, $markTargetW, $markTargetH)
+$mRead = $markBase.LockBits($markRect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$mPixels = New-Object byte[] ($mRead.Stride * $markTargetH)
+[System.Runtime.InteropServices.Marshal]::Copy($mRead.Scan0, $mPixels, 0, $mPixels.Length)
+$markBase.UnlockBits($mRead)
+$markBase.Dispose()
+
+$mLight = New-Object byte[] $mPixels.Length
+$mDark = New-Object byte[] $mPixels.Length
+
+for ($i = 0; $i -lt $mPixels.Length; $i += 4) {
+    $b = [double]$mPixels[$i]
+    $gr = [double]$mPixels[$i + 1]
+    $r = [double]$mPixels[$i + 2]
+    
+    $min = [Math]::Min($r, [Math]::Min($gr, $b))
+    
+    if ($min -ge 249.0) {
+        $mLight[$i + 3] = 0
+        $mDark[$i + 3] = 0
+        continue
+    }
+    
+    $bgVal = 254.0
+    $alphaNorm = [Math]::Max(0.0, [Math]::Min(1.0, ($bgVal - $min) / $bgVal))
+    if ($alphaNorm -lt 0.04) {
+        $mLight[$i + 3] = 0
+        $mDark[$i + 3] = 0
+        continue
+    }
+    
+    $aByte = [byte][Math]::Round($alphaNorm * 255.0)
+    
+    $origB = [Math]::Max(0.0, [Math]::Min(255.0, ($b - $bgVal * (1.0 - $alphaNorm)) / $alphaNorm))
+    $origGr = [Math]::Max(0.0, [Math]::Min(255.0, ($gr - $bgVal * (1.0 - $alphaNorm)) / $alphaNorm))
+    $origR = [Math]::Max(0.0, [Math]::Min(255.0, ($r - $bgVal * (1.0 - $alphaNorm)) / $alphaNorm))
+    
+    $mLight[$i] = [byte][Math]::Round($origB)
+    $mLight[$i + 1] = [byte][Math]::Round($origGr)
+    $mLight[$i + 2] = [byte][Math]::Round($origR)
+    $mLight[$i + 3] = $aByte
+    
+    $maxOrig = [Math]::Max($origR, [Math]::Max($origGr, $origB))
+    if ($maxOrig -lt 68.0) {
+        $mDark[$i] = 255
+        $mDark[$i + 1] = 255
+        $mDark[$i + 2] = 255
+        $mDark[$i + 3] = $aByte
+    } else {
+        if ($origB -gt $origR + 30.0) {
+            $mDark[$i] = [byte][Math]::Min(255.0, $origB * 1.15 + 15.0)
+            $mDark[$i + 1] = [byte][Math]::Min(255.0, $origGr * 1.15 + 10.0)
+            $mDark[$i + 2] = [byte][Math]::Min(255.0, $origR * 1.15)
+        } elseif ($origR -gt $origB + 30.0) {
+            $mDark[$i] = [byte][Math]::Min(255.0, $origB * 1.1)
+            $mDark[$i + 1] = [byte][Math]::Min(255.0, $origGr * 1.1 + 10.0)
+            $mDark[$i + 2] = [byte][Math]::Min(255.0, $origR * 1.05 + 5.0)
+        } else {
+            $mDark[$i] = [byte][Math]::Round($origB)
+            $mDark[$i + 1] = [byte][Math]::Round($origGr)
+            $mDark[$i + 2] = [byte][Math]::Round($origR)
+        }
+        $mDark[$i + 3] = $aByte
+    }
+}
+
+$mLightBmp = New-Object System.Drawing.Bitmap($markTargetW, $markTargetH, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$mw1 = $mLightBmp.LockBits($markRect, [System.Drawing.Imaging.ImageLockMode]::WriteOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+[System.Runtime.InteropServices.Marshal]::Copy($mLight, 0, $mw1.Scan0, $mLight.Length)
+$mLightBmp.UnlockBits($mw1)
+$mLightBmp.Save((Join-Path $OutDir "brand-mark.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+$mLightBmp.Dispose()
+
+$mDarkBmp = New-Object System.Drawing.Bitmap($markTargetW, $markTargetH, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$mw2 = $mDarkBmp.LockBits($markRect, [System.Drawing.Imaging.ImageLockMode]::WriteOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+[System.Runtime.InteropServices.Marshal]::Copy($mDark, 0, $mw2.Scan0, $mDark.Length)
+$mDarkBmp.UnlockBits($mw2)
+$mDarkBmp.Save((Join-Path $OutDir "brand-mark-dark.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+$mDarkBmp.Dispose()
+
+Write-Output "All brand assets generated cleanly."

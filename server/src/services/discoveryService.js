@@ -21,18 +21,30 @@ function num(v, { min = 0, max = 1_000_000_000, def } = {}) {
   return Math.min(Math.max(n, min), max);
 }
 
+function escapeRegex(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function buildDiscoveryQuery(params) {
   const {
-    q, niche, platform, city, country,
-    minFollowers, maxFollowers, minEngagement, minBudget, maxBudget, availability
+    q, niche, platform, city, country, location, verifiedOnly,
+    minFollowers, maxFollowers, minEngagement, minBudget, maxBudget, availability, sort
   } = params;
 
   const query = { isListed: true };
+  const andClauses = [];
 
   if (niche) query.niche = String(niche).toLowerCase().trim();
   if (availability) query.availability = availability;
-  if (country) query['location.country'] = String(country).trim();
-  if (city) query['location.city'] = String(city).trim();
+  if (verifiedOnly === 'true' || verifiedOnly === true) {
+    query['audience.followersSource'] = 'meta_api';
+  }
+  if (country) query['location.country'] = new RegExp(`^${escapeRegex(String(country).trim())}`, 'i');
+  if (city) query['location.city'] = new RegExp(`^${escapeRegex(String(city).trim())}`, 'i');
+  if (location && String(location).trim()) {
+    const locRx = new RegExp(escapeRegex(String(location).trim()), 'i');
+    andClauses.push({ $or: [{ 'location.city': locRx }, { 'location.country': locRx }] });
+  }
 
   // followers range
   const followerCond = {};
@@ -50,31 +62,50 @@ export function buildDiscoveryQuery(params) {
   const maxB = num(maxBudget, { def: undefined });
   if (maxB !== undefined) query.minBudget = { ...(query.minBudget || {}), $lte: maxB };
   if (minB !== undefined) {
-    query.$or = [{ maxBudget: { $gte: minB } }, { maxBudget: 0 }];
+    andClauses.push({ $or: [{ maxBudget: { $gte: minB } }, { maxBudget: 0 }] });
   }
 
-  if (q) {
-    query.$text = { $search: String(q).slice(0, 120) };
+  if (q && String(q).trim()) {
+    const cleanQ = String(q).trim().slice(0, 120);
+    if (sort === 'relevance') {
+      query.$text = { $search: cleanQ };
+    } else {
+      const rx = new RegExp(escapeRegex(cleanQ), 'i');
+      andClauses.push({
+        $or: [
+          { displayName: rx },
+          { username: rx },
+          { niche: rx },
+          { bio: rx },
+          { 'location.city': rx },
+          { 'location.country': rx }
+        ]
+      });
+    }
   }
+
+  if (andClauses.length) query.$and = andClauses;
+  void platform;
 
   return query;
 }
 
-export async function searchInfluencers(params) {  const page = Math.max(1, num(params.page, { min: 1, max: 10000, def: 1 }));
+export async function searchInfluencers(params) {
+  const page = Math.max(1, num(params.page, { min: 1, max: 10000, def: 1 }));
   const limit = Math.min(50, Math.max(1, num(params.limit, { min: 1, max: 50, def: 12 })));
   let sortKey = params.sort && SORTS[params.sort] ? params.sort : 'followers';
   // text-relevance sorting requires a $text query to exist; fall back otherwise
   if (sortKey === 'relevance' && !params.q) sortKey = 'followers';
 
-  const query = buildDiscoveryQuery(params);
+  const query = buildDiscoveryQuery({ ...params, sort: sortKey });
 
   const [items, total] = await Promise.all([
     InfluencerProfile.find(query)
       .sort(SORTS[sortKey])
       .skip((page - 1) * limit)
       .limit(limit)
-      .select('displayName username niche location audience rates minBudget maxBudget availability portfolio user')
-      .populate('user', 'avatarUrl instagram.username instagram.accountType'),
+      .select('displayName username niche bio location audience rates minBudget maxBudget availability portfolio instagramInsights.profilePicture user')
+      .populate('user', 'avatarUrl instagram.username instagram.accountType instagram.providerId instagram.connectedAt'),
     InfluencerProfile.countDocuments(query)
   ]);
 

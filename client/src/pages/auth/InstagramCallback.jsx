@@ -18,7 +18,7 @@ export default function InstagramCallback() {
     if (isSuccess) {
       if (refreshUser) refreshUser();
       const timer = setTimeout(() => {
-        navigate('/influencer/dashboard', { replace: true });
+        navigate('/', { replace: true });
       }, 1000);
       return () => clearTimeout(timer);
     }

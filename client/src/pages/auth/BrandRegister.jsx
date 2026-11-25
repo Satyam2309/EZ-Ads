@@ -51,7 +51,7 @@ export default function BrandRegister() {
         website: form.website || undefined,
         phone: form.phone || undefined
       });
-      navigate('/brand/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {

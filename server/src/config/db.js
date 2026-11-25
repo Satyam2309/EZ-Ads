@@ -7,8 +7,7 @@ import { env, isProd } from './env.js';
  * overridden — so `npm test` never wipes the dev collection again.
  */
 function resolveUri() {
-  const raw = process.env.MONGODB_URI;
-  if (raw && raw.length > 0) return raw;
+  const uriToUse = process.env.MONGODB_URI || env.MONGODB_URI;
   // Fail-closed belt & braces: if a test file set TEST_DB_NAME, isolate EVEN IF
   // NODE_ENV somehow reached us as 'development' (import-order bug protection:
   // a test process must never be able to touch the developer database).
@@ -16,11 +15,11 @@ function resolveUri() {
     // TEST_DB_NAME gives each test file its OWN database — the runner executes
     // files concurrently, and shared fixtures were being wiped by sibling files.
     const suffix = process.env.TEST_DB_NAME ? `_${process.env.TEST_DB_NAME}` : '';
-    const base = env.MONGODB_URI.split('?')[0].replace(/\/$/, '');
-    const qs = env.MONGODB_URI.includes('?') ? '?' + env.MONGODB_URI.split('?')[1] : '';
+    const base = uriToUse.split('?')[0].replace(/\/$/, '');
+    const qs = uriToUse.includes('?') ? '?' + uriToUse.split('?')[1] : '';
     return `${base}_test${suffix}${qs}`;
   }
-  return env.MONGODB_URI;
+  return uriToUse;
 }
 
 function maskUri(uri) {

@@ -55,10 +55,18 @@ export function BrandMark({ className = '', height = 'h-10' }) {
       <img
         src="/brand-mark.png"
         alt="EZ Ads"
-        width="767"
-        height="443"
+        width="400"
+        height="228"
         draggable="false"
-        className={`${height} w-auto object-contain select-none`}
+        className={`${height} w-auto object-contain select-none dark:hidden`}
+      />
+      <img
+        src="/brand-mark-dark.png"
+        alt="EZ Ads"
+        width="400"
+        height="228"
+        draggable="false"
+        className={`hidden dark:block ${height} w-auto object-contain select-none`}
       />
     </span>
   );

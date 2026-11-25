@@ -38,7 +38,9 @@ screenshots/
 
 # Deploy bundle produced by `npm run pack:deploy`
 deploy.zip
+*.zip
 .deploy-stage/
+materials/icons/
 
 # Agent skills installed locally (`npx skills add`) and their scratch captures
 .agents/

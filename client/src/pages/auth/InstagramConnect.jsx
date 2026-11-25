@@ -53,7 +53,7 @@ export default function CreatorRegister() {
         instagramUsername: form.instagramUsername.trim().replace(/^@/, ''),
         niche: form.niche.toLowerCase()
       });
-      navigate('/influencer/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {

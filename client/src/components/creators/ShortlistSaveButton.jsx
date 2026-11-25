@@ -7,7 +7,7 @@ import Button from '../ui/Button.jsx';
  * creator be added to any list (or a brand-new one). Duplicate adds surface the
  * server's 409 as a plain "already in list" message.
  */
-export default function ShortlistSaveButton({ influencerId, disabled }) {
+export default function ShortlistSaveButton({ influencerId, disabled, compact = false }) {
   const [open, setOpen] = useState(false);
   const [lists, setLists] = useState(null);
   const [err, setErr] = useState('');
@@ -50,9 +50,18 @@ export default function ShortlistSaveButton({ influencerId, disabled }) {
 
   return (
     <div className="relative" ref={boxRef}>
-      <Button size="sm" variant="secondary" onClick={() => setOpen((o) => !o)}>☆ Save</Button>
+      <Button
+        size="sm"
+        variant="secondary"
+        title="Save creator to shortlist"
+        aria-label="Save creator to shortlist"
+        onClick={() => setOpen((o) => !o)}
+        className={compact ? 'px-2.5' : ''}
+      >
+        {compact ? '☆' : '☆ Save'}
+      </Button>
       {open && (
-        <div className="absolute z-20 mt-2 w-64 rounded-xl border border-(--color-line) bg-(--color-surface) p-3 shadow-lg text-(--color-ink)">
+        <div className="absolute right-0 z-30 mt-2 w-64 rounded-xl border border-(--color-line) bg-(--color-surface) p-3 shadow-xl text-(--color-ink)">
           <p className="text-xs font-semibold text-neutral-500">Save to shortlist</p>
           {lists === null ? (
             <p className="mt-2 text-sm text-neutral-500">Loading…</p>

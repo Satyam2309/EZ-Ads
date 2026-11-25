@@ -34,6 +34,8 @@ import LegalStrip from './components/LegalStrip.jsx';
 import Button from './components/ui/Button.jsx';
 import BrandLogo from './components/BrandLogo.jsx';
 import Icon from './components/ui/Icon.jsx';
+import BrandHome from './components/home/BrandHome.jsx';
+import CreatorHome from './components/home/CreatorHome.jsx';
 
 /* The marketing footer only closes the public pages. Auth screens stay bare
    and full-height; the signed-in app gets a slim legal row instead. */
@@ -50,7 +52,7 @@ const FOOTER_ROUTES = new Set([
   '/refund-policy',
   '/disclaimer'
 ]);
-const APP_SECTIONS = ['/brand', '/influencer', '/chat', '/notifications', '/payments', '/settings', '/admin'];
+const APP_SECTIONS = ['/brand', '/creator', '/influencer', '/chat', '/notifications', '/payments', '/settings', '/admin'];
 
 /* One shared look for the header links, with a brand-coloured label and a
    2px underline on whichever page the user is currently on. */
@@ -61,6 +63,8 @@ const navLinkClass = (active) => `${NAV_BASE} ${active ? NAV_ACTIVE : NAV_IDLE}`
 
 function SiteFooter() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+  if (pathname === '/' && user) return <LegalStrip />;
   if (FOOTER_ROUTES.has(pathname)) return <Footer />;
   // admin sign-in is an auth screen, not part of the app shell
   if (pathname === '/admin/login') return null;
@@ -103,6 +107,7 @@ function Navbar() {
 
   // Brand nav links
   const brandLinks = [
+    { to: '/',                 label: 'Home',          icon: 'home',      end: true },
     { to: '/brand/discovery',  label: 'Find Creators', icon: 'search' },
     { to: '/brand/shortlists', label: 'Shortlists',    icon: 'star' },
     { to: '/brand/campaigns',  label: 'Campaigns',     icon: 'megaphone' },
@@ -110,13 +115,16 @@ function Navbar() {
   ];
   // Creator nav links
   const creatorLinks = [
+    { to: '/',                     label: 'Home',      icon: 'home',  end: true },
     { to: '/influencer/explore',   label: 'Explore',   icon: 'globe' },
     { to: '/influencer/inbox',     label: 'Inbox',     icon: 'inbox' },
-    { to: '/influencer/dashboard', label: 'Dashboard', icon: 'grid' },
     { to: '/payments',             label: 'Payments',  icon: 'wallet' },
+    { to: '/influencer/dashboard', label: 'Dashboard', icon: 'grid' },
   ];
 
   const roleLinks = user?.role === 'brand' ? brandLinks : user?.role === 'influencer' ? creatorLinks : [];
+  const isNavActive = (link, routerActive) =>
+    routerActive || (link.to === '/' && (pathname === '/brand' || pathname === '/creator'));
 
   return (
     <header className="sticky top-0 z-40 border-b border-(--color-line)/80 bg-(--color-canvas)/80 backdrop-blur-xl supports-[backdrop-filter]:bg-(--color-canvas)/65">
@@ -138,13 +146,15 @@ function Navbar() {
             <NavLink
               key={link.to}
               to={link.to}
-              className={({ isActive }) =>
-                `flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-0 ${
-                  isActive
+              end={link.end}
+              className={({ isActive }) => {
+                const active = isNavActive(link, isActive);
+                return `flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-0 ${
+                  active
                     ? 'bg-brand-50 text-brand-700 shadow-[inset_0_1px_0_rgb(255_255_255/0.6)] ring-1 ring-brand-500/20 dark:bg-brand-500/15 dark:text-brand-200 dark:shadow-none dark:ring-brand-400/25'
                     : 'text-(--color-ink-soft) hover:bg-(--color-elevated) hover:text-(--color-ink)'
-                }`
-              }
+                }`;
+              }}
             >
               <Icon name={link.icon} size={16} />
               {link.label}
@@ -268,11 +278,13 @@ function Navbar() {
               <NavLink
                 key={link.to}
                 to={link.to}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                    isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'
-                  }`
-                }
+                end={link.end}
+                className={({ isActive }) => {
+                  const active = isNavActive(link, isActive);
+                  return `flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                    active ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300' : 'text-(--color-ink-soft) hover:bg-(--color-elevated)'
+                  }`;
+                }}
               >
                 <Icon name={link.icon} size={16} /> {link.label}
               </NavLink>
@@ -340,6 +352,8 @@ export default function App() {
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="/register/creator" element={<InstagramConnect />} />
             <Route path="/login/creator" element={<CreatorLogin />} />
+            <Route path="/brand" element={<Protected roles={['brand']}><BrandHome /></Protected>} />
+            <Route path="/creator" element={<Protected roles={['influencer']}><CreatorHome /></Protected>} />
             <Route path="/brand/dashboard" element={<Protected roles={['brand']}><BrandDashboard /></Protected>} />
             <Route path="/brand/discovery" element={<Protected roles={['brand']}><Discovery /></Protected>} />
             <Route path="/brand/creators/:id" element={<Protected roles={['brand']}><CreatorProfile /></Protected>} />

@@ -52,7 +52,7 @@ export default function BrandLogin() {
     setBusy(true);
     try {
       await loginBrand(email, password);
-      navigate('/brand/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {

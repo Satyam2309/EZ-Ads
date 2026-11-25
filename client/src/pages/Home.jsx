@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Button from '../components/ui/Button.jsx';
 import Badge from '../components/ui/Badge.jsx';
 import Card from '../components/ui/Card.jsx';
@@ -7,6 +7,8 @@ import Icon from '../components/ui/Icon.jsx';
 import WorkflowAdSection from '../components/WorkflowAdSection.jsx';
 import { BrandMark } from '../components/BrandLogo.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import BrandHome from '../components/home/BrandHome.jsx';
+import CreatorHome from '../components/home/CreatorHome.jsx';
 
 /* Per-role hero CTA. Guests see the signup flow; a logged-in brand gets
    workspace actions; an influencer gets campaign discovery. */
@@ -160,7 +162,7 @@ const trust = [
    without putting invented creators on screen. */
 const nicheTags = ['Fashion', 'Beauty', 'Food', 'Tech', 'Fitness', 'Travel', 'Gaming', 'Education', 'Lifestyle'];
 
-export default function Home() {
+function PublicHome() {
   const tiltRef = useTilt();
 
   return (
@@ -444,7 +446,7 @@ export default function Home() {
           <div className="glass relative overflow-hidden rounded-3xl px-8 py-16 text-center">
             <div className="aurora opacity-60" aria-hidden />
             <div className="relative">
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-(--color-line) bg-white p-2.5 shadow-sm dark:border-white/10 dark:bg-white/95">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-(--color-line) bg-(--color-surface) p-2.5 shadow-sm dark:border-white/10 dark:bg-(--color-elevated)">
                 <BrandMark height="h-9" />
               </div>
               <h2 className="font-(family:--font-display) mt-4 text-3xl font-extrabold sm:text-4xl">
@@ -463,4 +465,22 @@ export default function Home() {
       </section>
     </div>
   );
+}
+
+export default function Home() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-(--color-canvas)" aria-busy="true">
+        <div className="h-56 animate-pulse bg-(--color-elevated)/60" />
+      </div>
+    );
+  }
+
+  if (user?.role === 'brand') return <BrandHome />;
+  if (user?.role === 'influencer') return <CreatorHome />;
+  if (user?.role === 'admin') return <Navigate to="/admin" replace />;
+
+  return <PublicHome />;
 }

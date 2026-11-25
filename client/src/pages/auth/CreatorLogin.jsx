@@ -26,7 +26,7 @@ export default function CreatorLogin() {
     setBusy(true);
     try {
       await loginCreator(email, password);
-      navigate('/influencer/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {

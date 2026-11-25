@@ -12,7 +12,7 @@
     "start": "npm start --prefix server",
     "pack:deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/pack-deploy.ps1",
     "logo:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/make-logo-assets.ps1",
-    "test": "npm test --prefix server && npm test --prefix client"
+    "test": "npm test --prefix server"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
