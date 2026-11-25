@@ -8,6 +8,7 @@
 # Run with: npm run pack:deploy
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 # Staging inside the repo: $env:TEMP here is a short path (C:\Users\MYPC~1\...)
